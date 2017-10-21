@@ -3,9 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-
 </head>
 
 <body>
@@ -78,8 +76,113 @@
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
 
-  <!-- Custom JS File - Application Logic -->
-  <script src="{% static 'js/applogic.js' %}"></script>
+  <!-- Custom JS File - Application Logic
+  <script src="{% static 'js/applogic.js' %}"></script> -->
+<script>
+
+    var map;
+
+    // This functions is used to plot the marker on google map. It returns the marker object
+    function plotMarker(Latitude, Longitude, map){
+
+        // Setting the marker object with the map, latitude and longitude data
+    	var marker = new google.maps.Marker({
+    		position: {lat: Latitude, lng: Longitude},
+    		map: map
+    	});
+
+    	return(marker);
+    }
+
+  function myMap() {
+
+    var mapCanvas = document.getElementById("map");
+    var mapOptions = {
+      center: new google.maps.LatLng(37.09024, -95.712891),
+      zoom: 4,
+    };
+
+    map = new google.maps.Map(mapCanvas, mapOptions);
+
+    // Passing the tweet_dict when rendering this page through DJango
+    // The control goes into the if section if the the tweet_dict is not
+    if({{tweet_dict |safe}}){
+
+      // Setting the Selected index to sreach query.
+
+      // Storing JSON data in the variable
+      var tweetData = {{tweet_dict |safe}};
+
+      // Storing the tweetData.tweet
+      var tweetsArray = tweetData.tweet;
+
+      // If there are tweets for the given topic Iterate
+      if(tweetsArray.length > 0){
+
+        // Creating marker and InfoWindow for the Google Map Objects
+        var marker, i;
+        var infowindow = new google.maps.InfoWindow();
+
+        // Iterating over the tweetsArray
+        for(i = 0; i<tweetsArray.length; i++){
+
+          // Getting the Tweet data
+          var tweet = tweetsArray[i];
+
+                  // console.log("Lat: "+tweet.lat+"Log: "+tweet.long);
+
+          // Creating a Google Map marker object
+          marker = plotMarker(tweet.lat,tweet.long, map);
+
+          // Code for adding the infowindow corresponding to the given marker
+          google.maps.event.addListener(marker, 'click',
+
+            (function(marker, i)
+            {
+              return function()
+              {
+                // Setting the content of infowindow
+                  infowindow.setContent(tweet.tweetData);
+                  infowindow.open(map, marker);
+              }
+            }
+          )(marker, i));
+        }
+
+        // Just logging the tweetData receieved
+        console.log(tweetsArray.length);
+      }
+      else{
+        // No data avaialble for the given topic
+
+      }
+    }
+    else{
+        // This is loaded at the time when call is for the index page
+        alert("the data is none");
+      }
+    }
+
+    $(document).ready(function() {
+      $('#dropdown-menu').on('change', function() {
+        document.forms['myform'].submit();
+     });
+    });
+
+    $('.dropdown-menu').on('click', 'a', function(e){
+
+      // 'this' is the clicked anchor
+
+      var text = this.text;
+      var href = this.href;
+
+      alert(text);
+
+      // here add to local storage;
+    });
+
+  </script>
+
 
   <!-- Google Map API call -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIWnwGb9WRladk_47LmMTH6cte9eC6Ob4&callback=myMap"></script>

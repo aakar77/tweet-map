@@ -6,7 +6,11 @@ urlpatterns = [
     #Only empty string will match this
     # name = 'post_list' is the name of the URL used to identify the view
     url(r'^index$', views.index, name='index'),
+
+    # Call will go to the search when clicked from index
+    # All the consecutive calls for search will go to search itself
     url(r'^search$', views.tweetsearch, name='index')
+
 ]
 
 # Djago will take everything mentioned here and place it in the variable called pk
