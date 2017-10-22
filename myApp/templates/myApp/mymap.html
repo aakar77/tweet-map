@@ -27,13 +27,13 @@
         	<div class="col-md-3">
             	<div class="form-group">
 
-            <form action="/search" method="post" id="myform" name="myform">
+            <form method="post" id="myform" name="myform">
                 {% csrf_token %}
 
                 <select class="form-control" id="dropdown-menu" name="dropdown-menu">
-                    {% i = 0 %}
+
                     {% for topic in topics %}
-                        <option value="{{topi}}">{{topic}}</option>
+                        <option value="{{topic}}">{{topic}}</option>
                     {% endfor %}
                 </select>
             </form>
@@ -75,29 +75,60 @@
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
   <!-- Custom JS File - Application Logic
   <script src="{% static 'js/applogic.js' %}"></script> -->
-<script>
+
+
+  <script>
+
+    // Declaring Global variables
+    var plotDict = [];
 
     var map;
     var image = "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
 
+    // -------------------------------------
+
     // This will be triggered on change event of dropdown-menu
     // Form will be submited
-    document.getElementById("#dropdown-menu").selectedIndex = {{}};
+
+    var requestInterval = setInterval(postData, 4000);
 
     $(document).ready(function() {
       $('#dropdown-menu').on('change', function() {
-        document.forms['myform'].submit();
+
+          postData();
+        //document.forms['myform'].submit();
      });
     });
 
-    // submitted the form every 10 seconds
-    function submitForm(){
-        document.forms['myform'].submit();
+    function postData(){
+
+      var search = $("#dropdown-menu").val();
+
+      $.ajax({
+        url: '/search',
+        type: 'POST',
+        data: {
+          'search': search,
+          'csrfmiddlewaretoken': '{{ csrf_token }}',
+        },
+        dataType: 'json',
+        success: function (data) {
+
+          console.log("succes");
+          if(data.status == "true"){
+
+            plotData(data.tweet)
+          }
+        },
+        error: function() {
+          console.log("failure");
+        }
+      });
     }
-    // refreshing the content every 3000 seconds
-    myVar = setInterval(submitForm, 3000);
 
     // This functions is used to plot the marker on google map. It returns the marker object
     function plotMarker(Latitude, Longitude, map){
@@ -132,6 +163,7 @@
       return resultObj;
     }
 
+    // Function for initialization of Google MAP
     function myMap() {
 
       // Image for the pushpin Object
@@ -170,25 +202,16 @@
 
           };
 
-      var geocoder = new google.maps.Geocoder();
-
       map = new google.maps.Map(mapCanvas, mapOptions);
+    }
 
-      // Passing the tweet_dict when rendering this page through DJango
-      // The control goes into the if section if the the tweet_dict is not
-      if({{tweet_dict |safe}}){
+    function plotData(tweets){
 
-        // Setting the Selected index to sreach query.
-        //document.getElementById('dropdown-menu').selectedIndex = {{searchText}};
+      // Storing the tweetData.tweet
+      var tweetsArray = tweets;
 
-        // Storing JSON data in the variable
-        var tweetData = {{tweet_dict |safe}};
-
-        // Storing the tweetData.tweet
-        var tweetsArray = tweetData.tweet;
-
-        // If there are tweets for the given topic Iterate
-        if(tweetsArray.length > 0){
+      // If there are tweets for the given topic Iterate
+      if(tweetsArray.length > 0){
 
           // Creating marker and InfoWindow for the Google Map Objects
           var marker = null, i;
@@ -203,18 +226,13 @@
             if(tweet.hasOwnProperty('location')){
 
               console.log("In location search by name");
-
-              var resultObj = geocodeAddress(geocoder, tweet.location);
-
-              if(resultObj != null){
-                marker = plotMarker(resultObj.Pa, resultObj.Qa);
-              }
             }
             else{
               // console.log("Lat: "+tweet.lat+"Log: "+tweet.long);
               // Creating a Google Map marker object
               marker = plotMarker(tweet.lat,tweet.long, map);
             }
+            
             if(marker != null){
               // Code for adding the infowindow corresponding to the given marker
               google.maps.event.addListener(marker, 'click',
@@ -231,20 +249,10 @@
               )(marker, i));
             }
           }
-
           // Just logging the tweetData receieved
           console.log(tweetsArray.length);
         }
-        else{
-          // No data avaialble for the given topic
-        }
-      }
-      else{
-          // This is loaded at the time when call is for the index page
-          alert("the data is none");
-        }
-      }
-
+    }
 
     $('.dropdown-menu').on('click', 'a', function(e){
 
