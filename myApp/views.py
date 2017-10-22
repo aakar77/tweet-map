@@ -21,13 +21,15 @@ def tweetsearch(request):
 
         # Retrieving the value obtained through post request for the dropdown-menu
         searchText = request.POST['dropdown-menu']
+
         print ("%s" % (searchText))
 
     # Testing with the sample data
     data_dict = {"tweet": [
                     { "lat": 40.712772, "long": -73.968285, "tweetData": "Hello"},
                     { "lat": 28.018349 , "long": -82.764473, "tweetData": "DOnald" },
-                    { "lat": 34.426388, "long": -117.300880, "tweetData": "Virginia" }
+                    { "lat": 34.426388, "long": -117.300880, "tweetData": "Virginia" },
+                    {"location": "Fairfax, VA", "tweetData": "Hello All"},
                 ]}
 
-    return render(request, 'myApp/mymap.html',{'tweet_dict':data_dict,'topics':topic, 'search':searchText})
+    return render(request, 'myApp/mymap.html', {'tweet_dict':data_dict,'topics':topic, 'search':searchText})

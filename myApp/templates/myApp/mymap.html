@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 </head>
 
@@ -30,12 +31,10 @@
                 {% csrf_token %}
 
                 <select class="form-control" id="dropdown-menu" name="dropdown-menu">
-
-                    <option value="">Select Topic</option>
+                    {% i = 0 %}
                     {% for topic in topics %}
-                        <option value="{{topic}}">{{topic}}</option>
+                        <option value="{{topi}}">{{topic}}</option>
                     {% endfor %}
-
                 </select>
             </form>
 
@@ -81,93 +80,171 @@
 <script>
 
     var map;
+    var image = "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
 
-    // This functions is used to plot the marker on google map. It returns the marker object
-    function plotMarker(Latitude, Longitude, map){
-
-        // Setting the marker object with the map, latitude and longitude data
-    	var marker = new google.maps.Marker({
-    		position: {lat: Latitude, lng: Longitude},
-    		map: map
-    	});
-
-    	return(marker);
-    }
-
-  function myMap() {
-
-    var mapCanvas = document.getElementById("map");
-    var mapOptions = {
-      center: new google.maps.LatLng(37.09024, -95.712891),
-      zoom: 4,
-    };
-
-    map = new google.maps.Map(mapCanvas, mapOptions);
-
-    // Passing the tweet_dict when rendering this page through DJango
-    // The control goes into the if section if the the tweet_dict is not
-    if({{tweet_dict |safe}}){
-
-      // Setting the Selected index to sreach query.
-
-      // Storing JSON data in the variable
-      var tweetData = {{tweet_dict |safe}};
-
-      // Storing the tweetData.tweet
-      var tweetsArray = tweetData.tweet;
-
-      // If there are tweets for the given topic Iterate
-      if(tweetsArray.length > 0){
-
-        // Creating marker and InfoWindow for the Google Map Objects
-        var marker, i;
-        var infowindow = new google.maps.InfoWindow();
-
-        // Iterating over the tweetsArray
-        for(i = 0; i<tweetsArray.length; i++){
-
-          // Getting the Tweet data
-          var tweet = tweetsArray[i];
-
-                  // console.log("Lat: "+tweet.lat+"Log: "+tweet.long);
-
-          // Creating a Google Map marker object
-          marker = plotMarker(tweet.lat,tweet.long, map);
-
-          // Code for adding the infowindow corresponding to the given marker
-          google.maps.event.addListener(marker, 'click',
-
-            (function(marker, i)
-            {
-              return function()
-              {
-                // Setting the content of infowindow
-                  infowindow.setContent(tweet.tweetData);
-                  infowindow.open(map, marker);
-              }
-            }
-          )(marker, i));
-        }
-
-        // Just logging the tweetData receieved
-        console.log(tweetsArray.length);
-      }
-      else{
-        // No data avaialble for the given topic
-
-      }
-    }
-    else{
-        // This is loaded at the time when call is for the index page
-        alert("the data is none");
-      }
-    }
+    // This will be triggered on change event of dropdown-menu
+    // Form will be submited
+    document.getElementById("#dropdown-menu").selectedIndex = {{}};
 
     $(document).ready(function() {
       $('#dropdown-menu').on('change', function() {
         document.forms['myform'].submit();
      });
     });
+
+    // submitted the form every 10 seconds
+    function submitForm(){
+        document.forms['myform'].submit();
+    }
+    // refreshing the content every 3000 seconds
+    myVar = setInterval(submitForm, 3000);
+
+    // This functions is used to plot the marker on google map. It returns the marker object
+    function plotMarker(Latitude, Longitude, map){
+
+      // Setting the marker object with the map, latitude and longitude data
+    	var marker = new google.maps.Marker({
+    		position: {lat: Latitude, lng: Longitude},
+    		map: map,
+        icon: image
+    	});
+
+    	return(marker);
+    }
+
+    // This function is used for searching the location by name and returns lat long object
+    function geocodeAddress(geocoder, address) {
+
+      var resultObj = null;
+      geocoder.geocode({'address': address}, function(results, status) {
+
+        if (status === 'OK') {
+
+          resultObj = results[0].geometry.location;
+          console.log(results[0].geometry.location);
+
+        } else {
+
+          resultObj = null;
+          console.log(resultObj);
+        }
+      });
+      return resultObj;
+    }
+
+    function myMap() {
+
+      // Image for the pushpin Object
+      var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
+
+      var mapCanvas = document.getElementById("map");
+      var mapOptions = {
+        center: new google.maps.LatLng(37.09024, -95.712891),
+        disableDefaultUI: true,
+        zoom: 2 ,
+        styles: [
+              {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
+              {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+              {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
+              {
+                featureType: 'water',
+                elementType: 'geometry',
+                stylers: [{color: '#17263c'}]
+              },
+              {
+                featureType: 'poi',
+                elementType: 'labels.text.fill',
+                stylers: [{color: '#d59563'}]
+              },
+              {
+                featureType: 'water',
+                elementType: 'labels.text.fill',
+                stylers: [{color: '#515c6d'}]
+              },
+              {
+                featureType: 'water',
+                elementType: 'labels.text.stroke',
+                stylers: [{color: '#17263c'}]
+              }
+            ],
+
+          };
+
+      var geocoder = new google.maps.Geocoder();
+
+      map = new google.maps.Map(mapCanvas, mapOptions);
+
+      // Passing the tweet_dict when rendering this page through DJango
+      // The control goes into the if section if the the tweet_dict is not
+      if({{tweet_dict |safe}}){
+
+        // Setting the Selected index to sreach query.
+        //document.getElementById('dropdown-menu').selectedIndex = {{searchText}};
+
+        // Storing JSON data in the variable
+        var tweetData = {{tweet_dict |safe}};
+
+        // Storing the tweetData.tweet
+        var tweetsArray = tweetData.tweet;
+
+        // If there are tweets for the given topic Iterate
+        if(tweetsArray.length > 0){
+
+          // Creating marker and InfoWindow for the Google Map Objects
+          var marker = null, i;
+          var infowindow = new google.maps.InfoWindow();
+
+          // Iterating over the tweetsArray
+          for(i = 0; i<tweetsArray.length; i++){
+
+            // Getting the Tweet data
+            var tweet = tweetsArray[i];
+
+            if(tweet.hasOwnProperty('location')){
+
+              console.log("In location search by name");
+
+              var resultObj = geocodeAddress(geocoder, tweet.location);
+
+              if(resultObj != null){
+                marker = plotMarker(resultObj.Pa, resultObj.Qa);
+              }
+            }
+            else{
+              // console.log("Lat: "+tweet.lat+"Log: "+tweet.long);
+              // Creating a Google Map marker object
+              marker = plotMarker(tweet.lat,tweet.long, map);
+            }
+            if(marker != null){
+              // Code for adding the infowindow corresponding to the given marker
+              google.maps.event.addListener(marker, 'click',
+
+                (function(marker, i)
+                {
+                  return function()
+                  {
+                    // Setting the content of infowindow
+                      infowindow.setContent(tweet.tweetData);
+                      infowindow.open(map, marker);
+                  }
+                }
+              )(marker, i));
+            }
+          }
+
+          // Just logging the tweetData receieved
+          console.log(tweetsArray.length);
+        }
+        else{
+          // No data avaialble for the given topic
+        }
+      }
+      else{
+          // This is loaded at the time when call is for the index page
+          alert("the data is none");
+        }
+      }
+
 
     $('.dropdown-menu').on('click', 'a', function(e){
 
