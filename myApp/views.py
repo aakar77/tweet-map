@@ -53,13 +53,9 @@ def tweetsearch(request):
         print ("%s" % (searchText))
 
     # Testing with the sample data
-    data_dict = {"tweet": [
-                    { "lat": 40.712772, "long": -73.968285, "tweetData": "Hello"},
-                    { "lat": 28.018349 , "long": -82.764473, "tweetData": "DOnald" },
-                    { "lat": 34.426388, "long": -117.300880, "tweetData": "Virginia" }
-                ]}
-    gettweets(searchText)
-    return render(request, 'myApp/mymap.html',{'tweet_dict':data_dict,'topics':topic, 'search':searchText})
+    data_dict = gettweets(searchText)
+    ddIndex = topic.index(searchText)
+    return render(request, 'myApp/mymap.html',{'tweet_dict':data_dict,'topics':topic, 'search':searchText, 'dropdownIndex':index})
 
 
 
