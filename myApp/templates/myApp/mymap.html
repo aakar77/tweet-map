@@ -82,6 +82,8 @@
           </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
   <!-- Custom JS File - Application Logic
   <script src="{% static 'js/applogic.js' %}"></script> -->
 
@@ -92,14 +94,17 @@
     var plotDict = [];
 
     var map;
+
     var geocoder;
     var resulObj = null;
     var image = "https://maps.gstatic.com/intl/en_ALL/mapfiles/markers2/measle.png";
+
 
     // -------------------------------------
 
     // This will be triggered on change event of dropdown-menu
     // Form will be submited
+
 
     var requestInterval = setInterval(postData, 10000);
 
@@ -151,7 +156,8 @@
     }
 
     // This function is used for searching the location by name and returns lat long object
-    function geocodeAddress(address) {
+
+  /*  function geocodeAddress(address) {
 
       geocoder.geocode({'address': address}, function(results, status) {
 
@@ -169,7 +175,7 @@
         return resultObj;
       });
     }
-
+*/
     // Function for initialization of Google MAP
     function myMap() {
 
@@ -209,7 +215,7 @@
 
           };
 
-      geocoder = new google.maps.Geocoder();
+      //geocoder = new google.maps.Geocoder();
       map = new google.maps.Map(mapCanvas, mapOptions);
     }
 
@@ -219,6 +225,7 @@
       return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
       // .toFixed() returns string, so ' * 1' is a trick to convert to number
     }
+
 
 
     function plotData(tweets){
@@ -232,6 +239,7 @@
           // Creating marker and InfoWindow for the Google Map Objects
           var marker = null, i;
           var infowindow = new google.maps.InfoWindow();
+
 
           // Iterating over the tweetsArray
           for(i = 0; i<tweetsArray.length; i++){
@@ -281,6 +289,7 @@
 
             } */
 
+
             if(marker != null){
               // Code for adding the infowindow corresponding to the given marker
               google.maps.event.addListener(marker, 'click',
@@ -290,19 +299,23 @@
                   return function()
                   {
                     // Setting the content of infowindow
+
                       infowindow.setContent(tweet.handle + tweet.text);
+
                       infowindow.open(map, marker);
                   }
                 }
               )(marker, i));
             }
           }
-          $('#content').html('<div class=alert alert-success> <strong>'+tweetsArray.length+'</strong></div>');
+
+          //$('#content').html('<div class=alert alert-success> <strong>'+tweetsArray.length+'</strong></div>');
 
 
           // Just logging the tweetData receieved
           //document.getElementById("content").innerHTML = "";
 
+          // Just logging the tweetData receieved
           console.log(tweetsArray.length);
         }
     }
