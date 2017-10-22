@@ -24,14 +24,14 @@ import geocoder
 #sys.setdefaultencoding('UTF8')
 
 #ElasticSearch Credentials
-AWS_ACCESS_KEY = 'AKIAIHKXJ52GYTQRYZPQ'
-AWS_SECRET_KEY = 'lxiD3GZ6CidOCXEfePFEJXG2KXudScOjUCOKQ3oW'
+AWS_ACCESS_KEY = 'S'
+AWS_SECRET_KEY = 'S'
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
-host = 'search-mytweetmap-7cquwqe4vjvpdshstcmvyns56y.us-east-2.es.amazonaws.com' # For example, my-test-domain.us-east-1.es.amazonaws.com
+host = 'search-mytweetmap-7cquwqe4vjvpdshstcmvyns56' # For example, my-test-domain.us-east-1.es.amazonaws.com
 
 #ElasticSearch object
 es = Elasticsearch(
@@ -44,10 +44,10 @@ es = Elasticsearch(
 
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
-access_token = "550279856-4D3dthHOlsCeR4IWUFvFPknJK0Mjpwo7Na9CcpTs"
-access_token_secret = "MlCr2OaoSB57HGfquhFq7g5VdvuGV8mCbiZKJb4vqn7T2"
-consumer_key = "E8nsSZ71P2moQilxiZNmfUG2r"
-consumer_secret = "Mc8D08tw5wyZRF6rfSYDb6sp4ZitUIjuIioaNGZZ3tMdvM7Y73"
+access_token = "s"
+access_token_secret = "S"
+consumer_key = "S"
+consumer_secret = "S"
 
 class StdOutListener(StreamListener):
 
