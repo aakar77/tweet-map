@@ -41,8 +41,8 @@
           </div>
         </div>
         <div class="col-md-6 content">
-
-        </div>
+          <div id="status"></div>
+          </div>
     </div>
 
     <!-- start map -->
@@ -111,6 +111,8 @@
 
 	  function postData(){
 
+        $('#status').text('Waiting for Live Tweets');
+
 	      var search = $("#dropdown-menu").val();
 
 	      if(search != null && search != undefined){
@@ -125,13 +127,25 @@
 	          dataType: 'json',
 	          success: function (data) {
 
+              $('#status').text('');
 	            console.log("succes");
-				console.log(data)
-	            if(data.status == 'true'){
+
+              console.log(data)
+
+              if(data.status == 'true'){
 	              plotData(data.tweet)
 	            }
+              else{
+
+                $('#modal-message').text('Sorry No Tweets available');
+
+                $('#myModal').modal('show');
+              }
 	          },
 	          error: function() {
+
+
+
 	            console.log("failure");
 	          }
 	        });
@@ -251,6 +265,7 @@
         }
         else{
           // No Live Tweets for this topic
+          $('#myModal').modal('show');
 
         }
 
