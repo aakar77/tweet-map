@@ -20,19 +20,23 @@ from random import uniform
 import sys
 import urllib3
 import geocoder
+
 from http.client import IncompleteRead
-#reload(sys)
-#sys.setdefaultencoding('UTF8')
+=======
 
 #ElasticSearch Credentials
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
+AWS_ACCESS_KEY = ''
+AWS_SECRET_KEY = ''
+
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
 host = '' # For example, my-test-domain.us-east-1.es.amazonaws.com
+host = 'search-mytweetmap-7cquwqe4vjvpdshstcmvyns56' # For example, my-test-domain.us-east-1.es.amazonaws.com
 
 #ElasticSearch object
 es = Elasticsearch(
@@ -46,19 +50,18 @@ es = Elasticsearch(
 
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
+
 access_token = ""
 access_token_secret = ""
 consumer_key = ""
 consumer_secret = ""
 
-# Create your views here.
 
 # Topic List to be populated in the Dropdown menu
 topic = ['a', 'is', 'the', 'broncos', 'red', 'socks', 'ass']
 
 # Setting the value of Twitter data_dict ti false.
 # Note here 'false' is for JavaScript Boolean variable, used in if construct
-data_dict = 'false'
 
 
 def GoogGeoAPI(address,api=""):
@@ -71,7 +74,8 @@ def GoogGeoAPI(address,api=""):
 # Method loaded for the first time
 def index(request):
     return render(request, 'myApp/mymap.html', {'topics':topic})
-    
+
+
 
 # Request sent from the form and used for subsequnet calls
 @csrf_protect
@@ -170,6 +174,7 @@ def tweetsearch(request):
     #stream.filter(languages=["en"], track=[searchText], stall_warnings = True)
     
     res = es.search(q=searchText, size = 20)
+
     tweets = list()
     
     #print (res['hits']['hits'])
@@ -177,6 +182,7 @@ def tweetsearch(request):
     for x in res['hits']['hits']:
         tweets.append(x['_source'])
     print (tweets)
+
     #searchjson = json.dumps(tweets)
     #tweetDict = dict()
 
@@ -190,3 +196,4 @@ def tweetsearch(request):
     responseObject = {'status': status, 'tweet':tweets}
     print(JsonResponse(responseObject).content)
     return JsonResponse(responseObject)
+   
