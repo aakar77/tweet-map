@@ -20,107 +20,58 @@ from random import uniform
 import sys
 import urllib3
 import geocoder
+from http.client import IncompleteRead
 #reload(sys)
 #sys.setdefaultencoding('UTF8')
 
 #ElasticSearch Credentials
-AWS_ACCESS_KEY = 'AKIAIHKXJ52GYTQRYZPQ'
-AWS_SECRET_KEY = 'lxiD3GZ6CidOCXEfePFEJXG2KXudScOjUCOKQ3oW'
+AWS_ACCESS_KEY = ''
+AWS_SECRET_KEY = ''
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
-host = 'search-mytweetmap-7cquwqe4vjvpdshstcmvyns56y.us-east-2.es.amazonaws.com' # For example, my-test-domain.us-east-1.es.amazonaws.com
+host = '' # For example, my-test-domain.us-east-1.es.amazonaws.com
 
 #ElasticSearch object
 es = Elasticsearch(
-    hosts = [{'host': host, 'port': 445}],
+    hosts = [{'host': host, 'port': 443}],
     http_auth = awsauth,
     use_ssl = True,
     verify_certs = True,
-    connection_class = RequestsHttpConnection
+    connection_class = RequestsHttpConnection,
+    timeout = 20
 )
 
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
-access_token = "550279856-4D3dthHOlsCeR4IWUFvFPknJK0Mjpwo7Na9CcpTs"
-access_token_secret = "MlCr2OaoSB57HGfquhFq7g5VdvuGV8mCbiZKJb4vqn7T2"
-consumer_key = "E8nsSZ71P2moQilxiZNmfUG2r"
-consumer_secret = "Mc8D08tw5wyZRF6rfSYDb6sp4ZitUIjuIioaNGZZ3tMdvM7Y73"
-
-class StdOutListener(StreamListener):
-
-    def on_data(self, data):
-
-        data_dict = json.loads(data)
-        #print(data_dict)
-        #Storing the tweets in two different indices:
-        #
-        # One for the ones that have exact coordinate information
-        if 'user' in data_dict.keys():
-            if data_dict['coordinates']:
-                longitude, latitude = data_dict['coordinates']['coordinates']
-                #print longitude,latitude
-                doc = {
-                     'text': data_dict['text'],
-                     'handle': data_dict['user']['screen_name'],
-                     'id': data_dict['id'],
-                     'longitude': longitude,
-                     'latitude': latitude
-                }
-                res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
-                print(res['created'])
-                #print data_dict['coordinates']['longitude'], data_dict['coordinates']
-                
-            #Others that have user's vague location information. Here we validate the location, and index it if it is valid. Otherwise we assign them randomly.
-            elif data_dict['user']['location']:
-                location = GoogGeoAPI(data_dict['user']['location'])
-                #print location[0], location[1]
-                if(location[0] != None):
-                    doc = {
-                        'text': data_dict['text'],
-                        'handle': data_dict['user']['screen_name'],
-                        'id': data_dict['id'],
-                        'longitude': location[0],
-                        'latitude': location[1]
-                            }
-                else:
-                    doc = {
-                        'text': data_dict['text'],
-                        'handle': data_dict['user']['screen_name'],
-                        'id': data_dict['id'],
-                        'longitude': uniform(-180, 180),
-                        'latitude': uniform(-85, 85)
-                            }
-                res = es.index(index="tweets_loc", doc_type='tweet', body=doc)
-                print(res['created'])
-
-        #if 'location' in data_dict.keys()
-        #res = es.index(index="tweets", doc_type='tweet', body=doc)
-        #i = i+1
-        #print(res['created'])
-        #with open("Output.txt", "a") as tweet_log:
-        #    tweet_log.write(data)
-        return True
-
-    def on_error(self, status):
-        print (status)
-        print ("Damnn")
-
+access_token = ""
+access_token_secret = ""
+consumer_key = ""
+consumer_secret = ""
 
 # Create your views here.
 
 # Topic List to be populated in the Dropdown menu
-topic = ['Trump', 'Bieber', 'Apple', 'Korea', 'Kohli', 'Modi', 'NYU', 'iOS', 'Android']
+topic = ['a', 'is', 'the', 'broncos', 'red', 'socks', 'ass']
 
 # Setting the value of Twitter data_dict ti false.
 # Note here 'false' is for JavaScript Boolean variable, used in if construct
 data_dict = 'false'
 
+
+def GoogGeoAPI(address,api=""):
+    g = geocoder.google(str(address))
+    if(g):
+        finList = g[0].latlng
+    else:
+        finList = [None, None]
+    return finList
 # Method loaded for the first time
 def index(request):
     return render(request, 'myApp/mymap.html', {'topics':topic})
+    
 
 # Request sent from the form and used for subsequnet calls
 @csrf_protect
@@ -129,47 +80,113 @@ def tweetsearch(request):
 
         # Retrieving the value obtained through post request for the dropdown-menu
         searchText = request.POST.get('search', None)
-        print ("%s" % (searchText))
+        print("-x-x-x-x-x-x-x-xx-x-x-x-x-")
+        print (searchText)
 
     # Testing with the sample data
-    #collectTweets()
-    data_dict = gettweets(searchText)
-    tweetDict = dict()
     
-    ddIndex = topic.index(searchText)
-    print(data_dict)
-    if (len(data_dict) > 0):
-        status = 'true'
-    else:
-        status = 'false'
-    return render(request, 'myApp/mymap.html',{'status': status, 'tweet':data_dict})
+    
+    class StdOutListener(StreamListener):
 
-#Method for GeoEncoding tweets with no coordinates, but having location information.
-def GoogGeoAPI(address,api="AIzaSyAIWnwGb9WRladk_47LmMTH6cte9eC6Ob4"):
-  g = geocoder.google(str(address))
-  if(g):
-      finList = g[0].latlng
-  else:
-      finList = [None, None]
-  return finList
-  
+        def __init__(self, time_limit=50):
+                    self.start_time = time.time()
+                    self.limit = time_limit
+                    
+        def on_data(self, data):
 
-def gettweets(search_term):
-    res = es.search(q=search_term, size = 20)
+            data_dict = json.loads(data)
+            #print(data_dict)
+            #Storing the tweets in two different indices:
+            #
+            # One for the ones that have exact coordinate information
+            if (time.time() - self.start_time) < self.limit:
+                print ("Here")
+                if 'user' in data_dict.keys():
+                    
+                    if data_dict['coordinates']:
+                        
+                        longitude, latitude = data_dict['coordinates']['coordinates']
+                        print (longitude,latitude)
+                        
+                        doc = {
+                             'text': data_dict['text'],
+                             'handle': data_dict['user']['screen_name'],
+                             'id': data_dict['id'],
+                             'longitude': longitude,
+                             'latitude': latitude
+                             }
+                             
+                        res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
+                        print(doc['text'])
+                        print(res['created'])
+                
+                        
+                    elif data_dict['user']['location']:
+                        
+                        location = GoogGeoAPI(data_dict['user']['location'])
+                        
+                        if(location[0] != None):
+                            doc = {
+                                'text': data_dict['text'],
+                                'handle': data_dict['user']['screen_name'],
+                                'id': data_dict['id'],
+                                'longitude': location[0],
+                                'latitude': location[1]
+                                }
+                                
+                        else:
+                            doc = {
+                                'text': data_dict['text'],
+                                'handle': data_dict['user']['screen_name'],
+                                'id': data_dict['id'],
+                                'longitude': uniform(-180, 180),
+                                'latitude': uniform(-85, 85)
+                                }
+                        res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
+                        print(doc['text'])
+                        print(res['created'])
+
+                        return True
+            else:
+                print("Else")
+                return False
+                        
+
+        def on_error(self, status):
+            print (status)
+            print ("Damnn")
+    
+    #print("It's here")
+    
+    #l = StdOutListener()
+    #auth = OAuthHandler(consumer_key, consumer_secret)
+    #auth.set_access_token(access_token, access_token_secret)
+    
+
+    #stream = Stream(auth, l)
+    #print (stream)
+    #stream.timeOut = 10
+    
+    #stream.filter(languages=["en"], track=[searchText], stall_warnings = True)
+    
+    res = es.search(q=searchText, size = 20)
     tweets = list()
-    #print res
+    
+    #print (res['hits']['hits'])
+    
     for x in res['hits']['hits']:
         tweets.append(x['_source'])
     print (tweets)
-    return tweets
-    
-def collectTweets():
-    print("It's here")
-    l = StdOutListener()
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    stream = Stream(auth, l)
-    stream.timeOut = 10
-    #print(stream)
-    stream.sample()
+    #searchjson = json.dumps(tweets)
+    #tweetDict = dict()
 
+    if (len(tweets) > 0):
+        print('True')
+        status = 'true'
+    else:
+        print('False')
+        status = 'false'
+        
+    responseObject = {'status': status, 'tweet':tweets}
+    print(JsonResponse(responseObject).content)
+    return JsonResponse(responseObject)

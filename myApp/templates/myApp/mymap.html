@@ -31,7 +31,7 @@
                 {% csrf_token %}
 
                 <select class="form-control" id="dropdown-menu" name="dropdown-menu">
-
+                    <option value="">Select the Topic</option>
                     {% for topic in topics %}
                         <option value="{{topic}}">{{topic}}</option>
                     {% endfor %}
@@ -43,7 +43,6 @@
         <div class="col-md-6 content">
 
         </div>
-
     </div>
 
     <!-- start map -->
@@ -77,9 +76,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
-<div class="alert alert-success">
-            <strong><div id="content"></div></strong>
-          </div>
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -87,8 +84,7 @@
   <!-- Custom JS File - Application Logic
   <script src="{% static 'js/applogic.js' %}"></script> -->
 
-
-  <script>
+  <script type="text/JavaScript">
 
     // Declaring Global variables
     var plotDict = [];
@@ -99,48 +95,45 @@
     var resulObj = null;
     var image = "https://maps.gstatic.com/intl/en_ALL/mapfiles/markers2/measle.png";
 
-
-    // -------------------------------------
-
     // This will be triggered on change event of dropdown-menu
     // Form will be submited
-
-
-    var requestInterval = setInterval(postData, 10000);
+    //var requestInterval = setInterval(postData, 10000);
 
     $(document).ready(function() {
       $('#dropdown-menu').on('change', function() {
-
           postData();
         //document.forms['myform'].submit();
      });
     });
 
-    function postData(){
+	function postData(){
 
-      var search = $("#dropdown-menu").val();
+	      var search = $("#dropdown-menu").val();
 
-      $.ajax({
-        url: '/search',
-        type: 'POST',
-        data: {
-          'search': search,
-          'csrfmiddlewaretoken': '{{ csrf_token }}',
-        },
-        dataType: 'json',
-        success: function (data) {
+	      if(search != null && search != undefined){
 
-          console.log("succes");
-          if(data.status == "true"){
+	        $.ajax({
+	          url: '/search',
+	          type: 'POST',
+	          data: {
+	            'search': search,
+	            'csrfmiddlewaretoken': '{{ csrf_token }}',
+	          },
+	          dataType: 'json',
+	          success: function (data) {
 
-            plotData(data.tweet)
-          }
-        },
-        error: function() {
-          console.log("failure");
-        }
-      });
-    }
+	            console.log("succes");
+				console.log(data)
+	            if(data.status == 'true'){
+	              plotData(data.tweet)
+	            }
+	          },
+	          error: function() {
+	            console.log("failure");
+	          }
+	        });
+	      }
+	    }
 
     // This functions is used to plot the marker on google map. It returns the marker object
     function plotMarker(Latitude, Longitude, map){
@@ -155,27 +148,6 @@
     	return(marker);
     }
 
-    // This function is used for searching the location by name and returns lat long object
-
-  /*  function geocodeAddress(address) {
-
-      geocoder.geocode({'address': address}, function(results, status) {
-
-        var resultObj = null;
-
-        if (status == google.maps.GeocoderStatus.OK) {
-
-          // Setting the resultant object
-
-          resultObj = {'lat': results[0].geometry.location.lat(), 'long':  results[0].geometry.location.lng()};
-
-        } else {
-
-        }
-        return resultObj;
-      });
-    }
-*/
     // Function for initialization of Google MAP
     function myMap() {
 
@@ -219,28 +191,18 @@
       map = new google.maps.Map(mapCanvas, mapOptions);
     }
 
-    // Function for generating random latitude and longitude
-    function getRandomInRange(from, to, fixed) {
-
-      return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
-      // .toFixed() returns string, so ' * 1' is a trick to convert to number
-    }
-
-
-
     function plotData(tweets){
 
       // Storing the tweetData.tweet
       var tweetsArray = tweets;
-
+	  console.log(tweetsArray)
       // If there are tweets for the given topic Iterate
       if(tweetsArray.length > 0){
-
+		  
           // Creating marker and InfoWindow for the Google Map Objects
           var marker = null, i;
           var infowindow = new google.maps.InfoWindow();
-
-
+		  console.log("Tweets array is there sa.")
           // Iterating over the tweetsArray
           for(i = 0; i<tweetsArray.length; i++){
 
@@ -253,42 +215,8 @@
 
               // Setting the image URL to measle_blue;
               image= "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
-
               marker = plotMarker(tweet.latitude,tweet.longitude, map);
             }
-
-            /*
-            if(tweet.hasOwnProperty('location')){
-
-              // Setting image to yellow
-              image = "https://storage.googleapis.com/support-kms-prod/SNP_2752063_en_v0";
-
-
-              geocodeAddress(tweet.location);
-
-              console.log(resultObj+"inside");
-
-              if(resultObj.hasOwnProperty('lat')){
-
-                marker = plotMarker(resultObj.lat, resultObj.long, map);
-                console.log("In location search by name");
-              }
-            }
-            else{
-
-              // These are tweets which are not having any co-ordinates.
-              // Not having any location Name
-
-              // Setting the image URL to red_color;
-              image = "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0";
-
-              lat = getRandomInRange(-90,180, 3);
-              long = getRandomInRange(-90,180, 4);
-
-              marker = plotMarker(lat,long, map);
-
-            } */
-
 
             if(marker != null){
               // Code for adding the infowindow corresponding to the given marker
@@ -308,18 +236,12 @@
               )(marker, i));
             }
           }
-
           //$('#content').html('<div class=alert alert-success> <strong>'+tweetsArray.length+'</strong></div>');
-
-
-          // Just logging the tweetData receieved
-          //document.getElementById("content").innerHTML = "";
 
           // Just logging the tweetData receieved
           console.log(tweetsArray.length);
         }
     }
-
     $('.dropdown-menu').on('click', 'a', function(e){
 
       // 'this' is the clicked anchor
@@ -337,7 +259,6 @@
 
   <!-- Google Map API call -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIWnwGb9WRladk_47LmMTH6cte9eC6Ob4&callback=myMap"></script>
-
 
 </body>
 </html>
