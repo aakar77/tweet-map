@@ -24,7 +24,7 @@ import geocoder
 from http.client import IncompleteRead
 
 AWS_ACCESS_KEY = 'x'
-AWS_SECRET_KEY = 'x+8qG/YyOQVKuNSwQas27xtjcEL'
+AWS_SECRET_KEY = 'x'
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
