@@ -41,12 +41,12 @@
           </div>
         </div>
         <div class="col-md-6 content">
-
-        </div>
+          <div id="status"></div>
+          </div>
     </div>
 
     <!-- start map -->
-		<div id="map" style="width:1050px;height:450px;background:blue;">
+		<div id="map" style="width:1050px;height:500px;background:blue;">
 
 		</div>
 		<!-- end map -->
@@ -90,35 +90,28 @@
     var plotDict = [];
 
     var map;
+    var markers = [];
 
     var geocoder;
     var resulObj = null;
     var image = "https://maps.gstatic.com/intl/en_ALL/mapfiles/markers2/measle.png";
-<<<<<<< HEAD
+
 
     // This will be triggered on change event of dropdown-menu
     // Form will be submited
     //var requestInterval = setInterval(postData, 10000);
-=======
-
-
-    // -------------------------------------
-
-    // This will be triggered on change event of dropdown-menu
-    // Form will be submited
-
-
-    var requestInterval = setInterval(postData, 10000);
->>>>>>> b9d15caa242b0bdc135a0ea3dc1656957c7cb2ae
 
     $(document).ready(function() {
       $('#dropdown-menu').on('change', function() {
+          deleteMarkers();
           postData();
         //document.forms['myform'].submit();
-     });
+      });
     });
 
-	function postData(){
+	  function postData(){
+
+        $('#status').text('Waiting for Live Tweets');
 
 	      var search = $("#dropdown-menu").val();
 
@@ -134,33 +127,31 @@
 	          dataType: 'json',
 	          success: function (data) {
 
+              $('#status').text('');
 	            console.log("succes");
-				console.log(data)
-	            if(data.status == 'true'){
+
+              console.log(data)
+
+              if(data.status == 'true'){
 	              plotData(data.tweet)
 	            }
+              else{
+
+                $('#modal-message').text('Sorry No Tweets available');
+
+                $('#myModal').modal('show');
+              }
 	          },
 	          error: function() {
+
+
+
 	            console.log("failure");
 	          }
 	        });
 	      }
-	    }
+	  }
 
-    // This functions is used to plot the marker on google map. It returns the marker object
-    function plotMarker(Latitude, Longitude, map){
-
-      // Setting the marker object with the map, latitude and longitude data
-    	var marker = new google.maps.Marker({
-    		position: {lat: Latitude, lng: Longitude},
-    		map: map,
-        icon: image
-    	});
-
-    	return(marker);
-    }
-
-<<<<<<< HEAD
     // Function for initialization of Google MAP
     function myMap() {
 
@@ -198,101 +189,55 @@
               }
             ],
 
-=======
-    // This function is used for searching the location by name and returns lat long object
-
-  /*  function geocodeAddress(address) {
-
-      geocoder.geocode({'address': address}, function(results, status) {
-
-        var resultObj = null;
-
-        if (status == google.maps.GeocoderStatus.OK) {
-
-          // Setting the resultant object
-
-          resultObj = {'lat': results[0].geometry.location.lat(), 'long':  results[0].geometry.location.lng()};
-
-        } else {
-
-        }
-        return resultObj;
-      });
-    }
-*/
-    // Function for initialization of Google MAP
-    function myMap() {
-
-      // Image for the pushpin Object
-      var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
-
-      var mapCanvas = document.getElementById("map");
-      var mapOptions = {
-        center: new google.maps.LatLng(37.09024, -95.712891),
-        disableDefaultUI: true,
-        zoom: 2 ,
-        styles: [
-              {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
-              {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
-              {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
-              {
-                featureType: 'water',
-                elementType: 'geometry',
-                stylers: [{color: '#17263c'}]
-              },
-              {
-                featureType: 'poi',
-                elementType: 'labels.text.fill',
-                stylers: [{color: '#d59563'}]
-              },
-              {
-                featureType: 'water',
-                elementType: 'labels.text.fill',
-                stylers: [{color: '#515c6d'}]
-              },
-              {
-                featureType: 'water',
-                elementType: 'labels.text.stroke',
-                stylers: [{color: '#17263c'}]
-              }
-            ],
-
->>>>>>> b9d15caa242b0bdc135a0ea3dc1656957c7cb2ae
           };
-
       //geocoder = new google.maps.Geocoder();
       map = new google.maps.Map(mapCanvas, mapOptions);
     }
 
-<<<<<<< HEAD
-=======
-    // Function for generating random latitude and longitude
-    function getRandomInRange(from, to, fixed) {
+    // This functions is used to plot the marker on google map. It returns the marker object
+    function plotMarker(tweet, map){
 
-      return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
-      // .toFixed() returns string, so ' * 1' is a trick to convert to number
+      // Setting the marker object with the map, latitude and longitude data
+    	var marker = new google.maps.Marker({
+    		position: {lat: tweet.latitude, lng: tweet.longitude},
+    		map: map,
+        icon: image
+    	});
+    	markers.push(marker);
+
+      var infowindow = new google.maps.InfoWindow({
+        content : tweet.text
+      })
+
+      marker.addListener('mouseover', function(){
+        infowindow.open(map, marker)
+      })
+
+      marker.addListener('mouseout', function(){
+        infowindow.close()
+      })
+
     }
 
+    function deleteMarkers(){
+      myMap();
+    }
 
-
->>>>>>> b9d15caa242b0bdc135a0ea3dc1656957c7cb2ae
     function plotData(tweets){
 
       // Storing the tweetData.tweet
       var tweetsArray = tweets;
-	  console.log(tweetsArray)
-      // If there are tweets for the given topic Iterate
-      if(tweetsArray.length > 0){
-		  
+
+      console.log(tweetsArray)
+
+        // If there are tweets for the given topic Iterate
+        if(tweetsArray.length > 0){
+
           // Creating marker and InfoWindow for the Google Map Objects
           var marker = null, i;
           var infowindow = new google.maps.InfoWindow();
-<<<<<<< HEAD
-		  console.log("Tweets array is there sa.")
-=======
+		      console.log("Tweets array is there sa.")
 
-
->>>>>>> b9d15caa242b0bdc135a0ea3dc1656957c7cb2ae
           // Iterating over the tweetsArray
           for(i = 0; i<tweetsArray.length; i++){
 
@@ -300,85 +245,32 @@
             var tweet = tweetsArray[i];
 
             if(tweet.hasOwnProperty('latitude')){
-              // console.log("Lat: "+tweet.lat+"Log: "+tweet.long);
-              // Creating a Google Map marker object
 
-              // Setting the image URL to measle_blue;
-              image= "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
-              marker = plotMarker(tweet.latitude,tweet.longitude, map);
-            }
+              if(tweet.latitude){
 
-<<<<<<< HEAD
-=======
-            /*
-            if(tweet.hasOwnProperty('location')){
+                // Setting the image URL to measle_blue;
+                image= "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
 
-              // Setting image to yellow
-              image = "https://storage.googleapis.com/support-kms-prod/SNP_2752063_en_v0";
-
-
-              geocodeAddress(tweet.location);
-
-              console.log(resultObj+"inside");
-
-              if(resultObj.hasOwnProperty('lat')){
-
-                marker = plotMarker(resultObj.lat, resultObj.long, map);
-                console.log("In location search by name");
               }
-            }
-            else{
-
-              // These are tweets which are not having any co-ordinates.
-              // Not having any location Name
-
-              // Setting the image URL to red_color;
-              image = "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0";
-
-              lat = getRandomInRange(-90,180, 3);
-              long = getRandomInRange(-90,180, 4);
-
-              marker = plotMarker(lat,long, map);
-
-            } */
-
-
->>>>>>> b9d15caa242b0bdc135a0ea3dc1656957c7cb2ae
-            if(marker != null){
-              // Code for adding the infowindow corresponding to the given marker
-              google.maps.event.addListener(marker, 'click',
-
-                (function(marker, i)
-                {
-                  return function()
-                  {
-                    // Setting the content of infowindow
-
-                      infowindow.setContent(tweet.handle + tweet.text);
-
-                      infowindow.open(map, marker);
-                  }
-                }
-              )(marker, i));
+              else{
+                // Tweet has random coordinate
+                image = "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0";
+              }
+              // Plotting on map and adding marker and create infowindow
+              plotMarker(tweet, map);
+              markers[i].setMap(map);
             }
           }
-<<<<<<< HEAD
-          //$('#content').html('<div class=alert alert-success> <strong>'+tweetsArray.length+'</strong></div>');
-
-          // Just logging the tweetData receieved
-=======
-
-          //$('#content').html('<div class=alert alert-success> <strong>'+tweetsArray.length+'</strong></div>');
-
-
-          // Just logging the tweetData receieved
-          //document.getElementById("content").innerHTML = "";
-
-          // Just logging the tweetData receieved
->>>>>>> b9d15caa242b0bdc135a0ea3dc1656957c7cb2ae
           console.log(tweetsArray.length);
         }
-    }
+        else{
+          // No Live Tweets for this topic
+          $('#myModal').modal('show');
+
+        }
+
+      }
+
     $('.dropdown-menu').on('click', 'a', function(e){
 
       // 'this' is the clicked anchor

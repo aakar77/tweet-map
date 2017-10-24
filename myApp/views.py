@@ -22,21 +22,16 @@ import urllib3
 import geocoder
 
 from http.client import IncompleteRead
-=======
 
-#ElasticSearch Credentials
-AWS_ACCESS_KEY = ''
-AWS_SECRET_KEY = ''
-AWS_ACCESS_KEY = ''
-AWS_SECRET_KEY = ''
-
+AWS_ACCESS_KEY = 'x'
+AWS_SECRET_KEY = 'x+8qG/YyOQVKuNSwQas27xtjcEL'
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
-host = '' # For example, my-test-domain.us-east-1.es.amazonaws.com
-host = 'search-mytweetmap-7cquwqe4vjvpdshstcmvyns56' # For example, my-test-domain.us-east-1.es.amazonaws.com
+host = 'x-x-x.x-x-x.es.x.com' # For example, my-test-domain.us-east-1.es.amazonaws.com
+
 
 #ElasticSearch object
 es = Elasticsearch(
@@ -45,24 +40,48 @@ es = Elasticsearch(
     use_ssl = True,
     verify_certs = True,
     connection_class = RequestsHttpConnection,
-    timeout = 20
+    timeout = 10
 )
 
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
 
-access_token = ""
-access_token_secret = ""
-consumer_key = ""
-consumer_secret = ""
+access_token = "x"
+access_token_secret = "x"
+consumer_key = "x"
+consumer_secret = "x"
 
+search = ''
 
 # Topic List to be populated in the Dropdown menu
-topic = ['a', 'is', 'the', 'broncos', 'red', 'socks', 'ass']
+topic = ['Trump', 'Hiliary', 'iOS', 'Android', 'Apple', 'Google', 'Modi']
 
 # Setting the value of Twitter data_dict ti false.
 # Note here 'false' is for JavaScript Boolean variable, used in if construct
+def esTweets(searchText):   
+    res = es.search(q=searchText, size = 20)
+    
+    tweets = list()
 
+    #print (res['hits']['hits'])
+
+    for x in res['hits']['hits']:
+        tweets.append(x['_source'])
+    #print (tweets)
+
+    #searchjson = json.dumps(tweets)
+    #tweetDict = dict()
+
+    if (len(tweets) > 0):
+        print('True')
+        status = 'true'
+    else:
+        print('False')
+        status = 'false'
+    
+    responseObject = {'status': status, 'tweet':tweets}
+    #print(JsonResponse(responseObject).content)
+    return JsonResponse(responseObject)
 
 def GoogGeoAPI(address,api=""):
     g = geocoder.google(str(address))
@@ -71,10 +90,11 @@ def GoogGeoAPI(address,api=""):
     else:
         finList = [None, None]
     return finList
+    
+    
 # Method loaded for the first time
 def index(request):
     return render(request, 'myApp/mymap.html', {'topics':topic})
-
 
 
 # Request sent from the form and used for subsequnet calls
@@ -83,16 +103,16 @@ def tweetsearch(request):
     if request.method == "POST":
 
         # Retrieving the value obtained through post request for the dropdown-menu
-        searchText = request.POST.get('search', None)
+        search = request.POST.get('search', None)
         print("-x-x-x-x-x-x-x-xx-x-x-x-x-")
-        print (searchText)
+        #print (searchText)
 
     # Testing with the sample data
     
     
     class StdOutListener(StreamListener):
 
-        def __init__(self, time_limit=50):
+        def __init__(self, time_limit=2):
                     self.start_time = time.time()
                     self.limit = time_limit
                     
@@ -104,7 +124,7 @@ def tweetsearch(request):
             #
             # One for the ones that have exact coordinate information
             if (time.time() - self.start_time) < self.limit:
-                print ("Here")
+                print("Here is a new tweet!")
                 if 'user' in data_dict.keys():
                     
                     if data_dict['coordinates']:
@@ -121,7 +141,7 @@ def tweetsearch(request):
                              }
                              
                         res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
-                        print(doc['text'])
+                        #print(doc['text'])
                         print(res['created'])
                 
                         
@@ -129,29 +149,22 @@ def tweetsearch(request):
                         
                         location = GoogGeoAPI(data_dict['user']['location'])
                         
-                        if(location[0] != None):
-                            doc = {
-                                'text': data_dict['text'],
-                                'handle': data_dict['user']['screen_name'],
-                                'id': data_dict['id'],
-                                'longitude': location[0],
-                                'latitude': location[1]
-                                }
-                                
-                        else:
-                            doc = {
-                                'text': data_dict['text'],
-                                'handle': data_dict['user']['screen_name'],
-                                'id': data_dict['id'],
-                                'longitude': uniform(-180, 180),
-                                'latitude': uniform(-85, 85)
-                                }
+                        doc = {
+                            'text': data_dict['text'],
+                            'handle': data_dict['user']['screen_name'],
+                            'id': data_dict['id'],
+                            'longitude': location[0],
+                            'latitude': location[1]
+                            }
                         res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
-                        print(doc['text'])
+                        #print(doc['text'])
                         print(res['created'])
-
-                        return True
+                    object = esTweets(search)
+                        
+                        
+                    return True
             else:
+                object = esTweets(search)
                 print("Else")
                 return False
                         
@@ -159,41 +172,17 @@ def tweetsearch(request):
         def on_error(self, status):
             print (status)
             print ("Damnn")
+            
     
     #print("It's here")
-    
-    #l = StdOutListener()
-    #auth = OAuthHandler(consumer_key, consumer_secret)
-    #auth.set_access_token(access_token, access_token_secret)
-    
+    l = StdOutListener()
+    auth = OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    stream = Stream(auth, l)
+    # This line filter Twitter Streams to capture data by the keywords: 'python', 'javascript', 'ruby'
+    stream.filter(track = topic)
+    object = esTweets(search)
+    return object
 
-    #stream = Stream(auth, l)
-    #print (stream)
-    #stream.timeOut = 10
     
-    #stream.filter(languages=["en"], track=[searchText], stall_warnings = True)
-    
-    res = es.search(q=searchText, size = 20)
-
-    tweets = list()
-    
-    #print (res['hits']['hits'])
-    
-    for x in res['hits']['hits']:
-        tweets.append(x['_source'])
-    print (tweets)
-
-    #searchjson = json.dumps(tweets)
-    #tweetDict = dict()
-
-    if (len(tweets) > 0):
-        print('True')
-        status = 'true'
-    else:
-        print('False')
-        status = 'false'
-        
-    responseObject = {'status': status, 'tweet':tweets}
-    print(JsonResponse(responseObject).content)
-    return JsonResponse(responseObject)
    
