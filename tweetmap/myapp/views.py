@@ -26,14 +26,14 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-AWS_ACCESS_KEY = 'AKIAIU5CC33QDPZAPDYQ'
-AWS_SECRET_KEY = 'JauKy28IsLUbq8SzfvEb3Gk5sAzSPPp5/ofU1iNu'
+AWS_ACCESS_KEY = 'X'
+AWS_SECRET_KEY = 'X'
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
-host = 'search-mytweetmap-7cquwqe4vjvpdshstcmvyns56y.us-east-2.es.amazonaws.com' # For example, my-test-domain.us-east-1.es.amazonaws.com
+host = 'X' # For example, my-test-domain.us-east-1.es.amazonaws.com
 
 
 #ElasticSearch object
@@ -49,10 +49,10 @@ es = Elasticsearch(
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
 
-access_token = '2394334112-R1vHGRhhrWvHluIOXDr4HYCIVkmW8LfJjzm1GVM'
-access_token_secret = 'bBLF4UE3Y5JN5a0NZHTCcSZmFHPHNUeWiiOrpoJd0gKiU'
-consumer_key = '587HSCUOtGCTRKgWTK3NVehs7'
-consumer_secret = 'l0vTVXfbAbuJmMYqTJmI9RMGqGdvdQO7yep6xjPcQX5L3AjBri'
+access_token = 'X'
+access_token_secret = 'X'
+consumer_key = 'X'
+consumer_secret = 'X'
 
 search = ''
 
