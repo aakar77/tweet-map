@@ -127,26 +127,19 @@
 	          dataType: 'json',
 	          success: function (data) {
 
-              $('#status').text('');
-	            console.log("succes");
+              		$('#status').text('');
+	            	console.log("success");
+             	    	console.log(data);
 
-              console.log(data)
-
-              if(data.status == 'true'){
-	              plotData(data.tweet)
-	            }
-              else{
-
-                $('#modal-message').text('Sorry No Tweets available');
-
-                $('#myModal').modal('show');
-              }
-	          },
+      	        	if(data.status == 'true'){
+	              	  plotData(data.tweet);
+	        	}
+               		else{
+                    	    $('#status').text('Sorry No Live Tweets available');
+                	}
+	       	  },
 	          error: function() {
-
-
-
-	            console.log("failure");
+			console.log("failure");	
 	          }
 	        });
 	      }
@@ -261,14 +254,13 @@
               markers[i].setMap(map);
             }
           }
-          console.log(tweetsArray.length);
+       	    $('#status').text('No of Tweets Returned '+ tweetsArray.length);
+            console.log(tweetsArray.length);
         }
         else{
           // No Live Tweets for this topic
-          $('#myModal').modal('show');
-
+          $('#status').text('Sorry No Live Tweets available');
         }
-
       }
 
     $('.dropdown-menu').on('click', 'a', function(e){
@@ -277,9 +269,7 @@
 
       var text = this.text;
       var href = this.href;
-
       alert(text);
-
       // here add to local storage;
     });
 
