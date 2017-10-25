@@ -26,14 +26,14 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-AWS_ACCESS_KEY = 'X'
-AWS_SECRET_KEY = 'X'
+AWS_ACCESS_KEY = 'a'
+AWS_SECRET_KEY = 'a'
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
-host = 'X' # For example, my-test-domain.us-east-1.es.amazonaws.com
+host = 'z' # For example, my-test-domain.us-east-1.es.amazonaws.com
 
 
 #ElasticSearch object
@@ -49,14 +49,16 @@ es = Elasticsearch(
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
 
-access_token = 'X'
-access_token_secret = 'X'
-consumer_key = 'X'
-consumer_secret = 'XYXZ'
+access_token = 'x'
+access_token_secret = 'w'
+consumer_key = 'q'
+consumer_secret = 'q'
+
+
 search = ''
 
 # Topic List to be populated in the Dropdown menu
-topic = ['Trump', 'Hiliary', 'iOS', 'Android', 'Apple', 'Google', 'Modi', 'NYC','USA']
+topic = ['Trump', 'Obama','Android', 'Apple', 'Google', 'Modi', 'Iphone','United']
 
 # Setting the value of Twitter data_dict ti false.
 # Note here 'false' is for JavaScript Boolean variable, used in if construct

@@ -112,6 +112,7 @@
 	  function postData(){
 
         $('#status').text('Waiting for Live Tweets');
+        markers = [];
 
 	      var search = $("#dropdown-menu").val();
 
@@ -142,9 +143,6 @@
 		        }
 	          },
 	          error: function() {
-
-
-
 	            console.log("failure");
 	          }
 	        });
@@ -156,6 +154,7 @@
 
       // Image for the pushpin Object
       var image;
+      markers = [];
 
       var mapCanvas = document.getElementById("map");
       var mapOptions = {
@@ -198,10 +197,11 @@
 
       // Setting the marker object with the map, latitude and longitude data
     	var marker = new google.maps.Marker({
-    		position: {lat: tweet.latitude, lng: tweet.longitude},
+    		position: {lat: parseFloat(tweet.latitude), lng: parseFloat(tweet.longitude)},
     		map: map,
         icon: image
     	});
+
     	markers.push(marker);
 
       var infowindow = new google.maps.InfoWindow({
@@ -289,7 +289,7 @@
 
 
   <!-- Google Map API call -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=X&callback=myMap"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=A4&callback=myMap"></script>
 
 </body>
 </html>
