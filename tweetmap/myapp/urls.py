@@ -5,7 +5,8 @@ urlpatterns = [
 
     #Only empty string will match this
     # name = 'post_list' is the name of the URL used to identify the view
-    url(r'^index$', views.index, name='index'),
+
+    url(r'^$', views.index, name='index'),
 
     # Call will go to the search when clicked from index
     # All the consecutive calls for search will go to search itself

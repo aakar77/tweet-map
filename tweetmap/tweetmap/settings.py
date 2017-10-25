@@ -25,9 +25,7 @@ SECRET_KEY = '$mw+_r1tg3&ry2059f$tr6)wz2f=9h*gyfyw))3cwo51jgkuan'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
-
+#ALLOWED_HOSTS = ['django-env.gztpfdm3mq.us-east-2.elasticbeanstalk.com']
 # Application definition
 
 INSTALLED_APPS = [
@@ -80,7 +78,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

@@ -19,12 +19,12 @@ import json
 from random import uniform
 import sys
 import urllib3
+from http.client import IncompleteRead
 import geocoder
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-from http.client import IncompleteRead
 
 AWS_ACCESS_KEY = 'AKIAIU5CC33QDPZAPDYQ'
 AWS_SECRET_KEY = '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'
@@ -57,7 +57,7 @@ consumer_secret = 'l0vTVXfbAbuJmMYqTJmI9RMGqGdvdQO7yep6xjPcQX5L3AjBri'
 search = ''
 
 # Topic List to be populated in the Dropdown menu
-topic = ['Trump', 'Hiliary', 'iOS', 'Android', 'Apple', 'Google', 'Modi', 'Chicago','Yankees']
+topic = ['Trump', 'Hiliary', 'iOS', 'Android', 'Apple', 'Google', 'Modi', 'NYC','USA']
 
 # Setting the value of Twitter data_dict ti false.
 # Note here 'false' is for JavaScript Boolean variable, used in if construct
@@ -66,7 +66,7 @@ def esTweets(searchText):
     print 'I am searching for {0}' .format(searchText)
     #print("I am searching for %s" %(searchText))
 
-    res = es.search(q=searchText, size = 30)
+    res = es.search(index="tweets_coord", doc_type="tweet",  body={"query": {"match": {"text": searchText}}}, size = 100)
 
     tweets = list()
 
@@ -92,12 +92,15 @@ def esTweets(searchText):
 
 def GoogGeoAPI(address,api=""):
     g = geocoder.google(str(address))
-    if(g):
-        finList = g[0].latlng
-    else:
-        finList = [None, None]
-    return finList
 
+    if(g):
+        print 'In GeoCoding True %s' %(address)
+        finList = g[0].latlng
+        print g[0].latlng
+    else:
+        print 'In GeoCoding True %s' %(address)
+        finList = [None,None]
+    return finList
 
 # Method loaded for the first time
 def index(request):
@@ -132,12 +135,17 @@ def tweetsearch(request):
             # One for the ones that have exact coordinate information
             if (time.time() - self.start_time) < self.limit:
                 print 'Here is a new tweet!'
+
                 if 'user' in data_dict.keys():
 
                     if data_dict['coordinates']:
 
-                        longitude, latitude = data_dict['coordinates']['coordinates']
-                        print '{0} {1}' %format(longitude,latitude)
+                        try:
+                            longitude, latitude = data_dict['coordinates']['coordinates']
+                            #print ' having coordinates {0} {1}' %format(longitude,latitude)
+                        except:
+                            longitude = None
+                            latitude = None
 
                         doc = {
                              'text': data_dict['text'],
@@ -156,12 +164,15 @@ def tweetsearch(request):
 
                         location = GoogGeoAPI(data_dict['user']['location'])
 
+                        #print '-> ->having coordinates %f %f %s' %(location[0], location[1], data_dict['user']['location'])
+
                         doc = {
                             'text': data_dict['text'],
                             'handle': data_dict['user']['screen_name'],
                             'id': data_dict['id'],
-                            'longitude': location[0],
-                            'latitude': location[1]
+                            'latitude': location[0],
+                            'longitude': location[1],
+
                             }
                         res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
                         #print(doc['text'])
