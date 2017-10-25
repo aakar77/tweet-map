@@ -1,4 +1,4 @@
-#!/home/dell/TweetMap/myenv/bin/python3
+#!/home/dell/Desktop/tweetmap2/myenv/bin/python
 from django.core import management
 
 if __name__ == "__main__":
