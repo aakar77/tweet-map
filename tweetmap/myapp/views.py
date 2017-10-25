@@ -52,8 +52,7 @@ es = Elasticsearch(
 access_token = 'X'
 access_token_secret = 'X'
 consumer_key = 'X'
-consumer_secret = 'X'
-
+consumer_secret = 'XYXZ'
 search = ''
 
 # Topic List to be populated in the Dropdown menu
@@ -118,8 +117,6 @@ def tweetsearch(request):
         #print (searchText)
 
     # Testing with the sample data
-
-
     class StdOutListener(StreamListener):
 
         def __init__(self, time_limit=10):
