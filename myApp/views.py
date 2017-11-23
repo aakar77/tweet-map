@@ -23,8 +23,8 @@ import geocoder
 
 from http.client import IncompleteRead
 
-AWS_ACCESS_KEY = 'x'
-AWS_SECRET_KEY = 'x'
+AWS_ACCESS_KEY = 'xxxxxxxxxxxxxxxxxx'
+AWS_SECRET_KEY = 'xxxxxxxxxxxxxxxxxx'
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
@@ -46,12 +46,12 @@ es = Elasticsearch(
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
 
-access_token = "x"
-access_token_secret = "x"
-consumer_key = "x"
-consumer_secret = "x"
+access_token = "xxxxxxxxx"
+access_token_secret = "xxxxxxxxx"
+consumer_key = "xxxxxxxxx"
+consumer_secret = "xxxxxxxx"
 
-search = ''
+search = 'xxxxxxxxxxxxxxxx'
 
 # Topic List to be populated in the Dropdown menu
 topic = ['Trump', 'Hiliary', 'iOS', 'Android', 'Apple', 'Google', 'Modi']
