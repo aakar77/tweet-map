@@ -92,6 +92,10 @@
     var map;
     var markers = [];
 
+
+    var lat = null;
+    var long = null;
+
     var geocoder;
     var resulObj = null;
     var image = "https://maps.gstatic.com/intl/en_ALL/mapfiles/markers2/measle.png";
@@ -118,35 +122,48 @@
 
 	      if(search != null && search != undefined){
 
+          var postData;
+
+          console.log("lat: "+lat+" long: "+long);
+          if(search != null && search != undefined && lat != null && long != null){
+            postData = {'search' : search, 'csrfmiddlewaretoken': '{{ csrf_token }}', 'lat': lat, 'long': long};
+          }else{
+            postData = {'search' : search, 'csrfmiddlewaretoken': '{{ csrf_token }}', 'lat': 'None', 'long': 'None'};
+          }
+
 	        $.ajax({
 	          url: '/search',
 	          type: 'POST',
-	          data: {
-	            'search': search,
-	            'csrfmiddlewaretoken': '{{ csrf_token }}',
-	          },
+	          data: postData,
 	          dataType: 'json',
 	          success: function (data) {
 
               $('#status').text('');
 	            console.log("succes");
+              console.log(data)
 
-		       	console.log(data)
+              lat = null;
+              long = null;
 
 		          if(data.status == 'true'){
 			          plotData(data.tweet)
 			        }
 		          else{
 
-					$('#status').text('Sorry No Live Tweets available');
+                lat = null;
+                long = null;
+					      $('#status').text('Sorry No Live Tweets available');
 
-		        }
+		          }
 	          },
 	          error: function() {
-	            console.log("failure");
+              lat = null;
+              long = null;
+              $('#status').text('Sorry| ISE | No Live Tweets available');
 	          }
 	        });
 	      }
+
 	  }
 
     // Function for initialization of Google MAP
@@ -155,6 +172,7 @@
       // Image for the pushpin Object
       var image;
       markers = [];
+      var request_true = false;
 
       var mapCanvas = document.getElementById("map");
       var mapOptions = {
@@ -197,9 +215,10 @@
 
       // Setting the marker object with the map, latitude and longitude data
     	var marker = new google.maps.Marker({
-    		position: {lat: parseFloat(tweet.latitude), lng: parseFloat(tweet.longitude)},
+    		position: {lat: parseFloat(tweet.coords[1]), lng: parseFloat(tweet.coords[0])},
     		map: map,
-        icon: image
+        icon: image,
+        draggable : true
     	});
 
     	markers.push(marker);
@@ -216,6 +235,16 @@
         infowindow.close()
       })
 
+      marker.addListener('dragend', drageventhandler);
+
+    }
+
+    function drageventhandler(event){
+      lat = event.latLng.lat();
+      long = event.latLng.lng();
+
+      // Calling the post data function
+      postData();
     }
 
     function deleteMarkers(){
@@ -226,7 +255,6 @@
 
       // Storing the tweetData.tweet
       var tweetsArray = tweets;
-
       console.log(tweetsArray)
 
         // If there are tweets for the given topic Iterate
@@ -243,17 +271,17 @@
             // Getting the Tweet data
             var tweet = tweetsArray[i];
 
-            if(tweet.hasOwnProperty('latitude')){
+            if(tweet.hasOwnProperty('coords')){
 
-              if(tweet.latitude){
+              if(tweet.coords[0]){
 
                 // Setting the image URL to measle_blue;
                 image= "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
 
               }
-              else if(tweet.latitude == 'None' || tweet.longitude == 'None'){
+              else if(tweet.coords[0] == 'None' || tweet.coords[1] == 'None'){
 
-				// Tweet has random coordinate
+				            // Tweet has random coordinate
                 image = "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0";
               }
               // Plotting on map and adding marker and create infowindow
@@ -268,9 +296,7 @@
         else{
           // No Live Tweets for this topic
           $('#status').text('Sorry No Live Tweets available');
-
         }
-
       }
 
     $('.dropdown-menu').on('click', 'a', function(e){
@@ -289,7 +315,7 @@
 
 
   <!-- Google Map API call -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=A4&callback=myMap"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIWnwGb9WRladk_47LmMTH6cte9eC6Ob4&callback=myMap"></script>
 
 </body>
 </html>

@@ -25,16 +25,14 @@ import geocoder
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-
-AWS_ACCESS_KEY = 'a'
-AWS_SECRET_KEY = 'a'
+AWS_ACCESS_KEY = 'AKIAJX2P4SHIOHCKQGSQ'
+AWS_SECRET_KEY = '6jYF37SqVcYQEkD+I4NVyhMXQKsfRq2q+qT3M92i'
 region = 'us-east-2' # For example, us-east-1
 service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
-host = 'z' # For example, my-test-domain.us-east-1.es.amazonaws.com
-
+host = 'search-mytweetmap-7cquwqe4vjvpdshstcmvyns56y.us-east-2.es.amazonaws.com' # For example, my-test-domain.us-east-1.es.amazonaws.com
 
 #ElasticSearch object
 es = Elasticsearch(
@@ -49,11 +47,10 @@ es = Elasticsearch(
 #Twitter credentials:
 #Variables that contains the user credentials to access Twitter API
 
-access_token = 'x'
-access_token_secret = 'w'
-consumer_key = 'q'
-consumer_secret = 'q'
-
+access_token = '2394334112-R1vHGRhhrWvHluIOXDr4HYCIVkmW8LfJjzm1GVM'
+access_token_secret = 'bBLF4UE3Y5JN5a0NZHTCcSZmFHPHNUeWiiOrpoJd0gKiU'
+consumer_key = '587HSCUOtGCTRKgWTK3NVehs7'
+consumer_secret = 'l0vTVXfbAbuJmMYqTJmI9RMGqGdvdQO7yep6xjPcQX5L3AjBri'
 
 search = ''
 
@@ -62,12 +59,49 @@ topic = ['Trump', 'Obama','Android', 'Apple', 'Google', 'Modi', 'Iphone','United
 
 # Setting the value of Twitter data_dict ti false.
 # Note here 'false' is for JavaScript Boolean variable, used in if construct
-def esTweets(searchText):
+def esTweets(searchText, queryStatus):
 
     print 'I am searching for {0}' .format(searchText)
     #print("I am searching for %s" %(searchText))
 
-    res = es.search(index="tweets_coord", doc_type="tweet",  body={"query": {"match": {"text": searchText}}}, size = 100)
+    searchQuery = {"query": {"match": {"text": searchText}}}
+    print "Before Query Status"
+    print queryStatus
+
+    if queryStatus['lat'] != 'False':
+        searchQuery = {
+                    "query": {
+                    "filtered": {
+                        "query" : {"match": {"text": searchText}},
+                        "filter": {
+                            "geo_distance":     {
+                                "distance": "100mi",
+                                "coords": [88,99]
+                                }
+                            }
+                        }
+                    }
+                }
+        '''
+
+
+                "query" : {
+                    "field": {"text": searchText}
+                },
+                "filter": {
+                    "geo_distance": {
+                        "distance": "100km",
+
+                        }
+                    }
+                }
+
+        }
+        '''
+
+    print searchQuery
+
+    res = es.search(index="geotweets", doc_type="tweet",  body=searchQuery, size = 100)
 
     tweets = list()
 
@@ -118,12 +152,19 @@ def tweetsearch(request):
         print '-x-x-x-x-x-x-x-xx-x-x-x-x-'
         #print (searchText)
 
+        print request.POST.get('long', None)
+
+        if request.POST.get('long', None) == 'None':
+            queryStatus = {"lat": 'False', "lon" : 'False'}
+        else:
+            queryStatus = {"lat": request.POST.get('lat', None), "lon": request.POST.get('long', None) }
+
     # Testing with the sample data
     class StdOutListener(StreamListener):
 
         def __init__(self, time_limit=10):
-                    self.start_time = time.time()
-                    self.limit = time_limit
+            self.start_time = time.time()
+            self.limit = time_limit
 
         def on_data(self, data):
 
@@ -147,14 +188,14 @@ def tweetsearch(request):
                             latitude = None
 
                         doc = {
-                             'text': data_dict['text'],
-                             'handle': data_dict['user']['screen_name'],
-                             'id': data_dict['id'],
-                             'longitude': longitude,
-                             'latitude': latitude
-                             }
+                            'text': data_dict['text'],
+                            'handle': data_dict['user']['screen_name'],
+                            'id': data_dict['id'],
+                            'longitude': longitude,
+                            'latitude': latitude
+                            }
 
-                        res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
+                        res = es.index(index="tweets_geoloc", doc_type='tweet', body=doc)
                         #print(doc['text'])
                         print res['created']
 
@@ -172,32 +213,30 @@ def tweetsearch(request):
                             'latitude': location[0],
                             'longitude': location[1],
 
-                            }
-                        res = es.index(index="tweets_coord", doc_type='tweet', body=doc)
+                        }
+
+                        res = es.index(index="tweets_geoloc", doc_type='tweet', body=doc)
                         #print(doc['text'])
                         print res['created']
-                    object = esTweets(search)
-
+                    object = esTweets(search,queryStatus)
 
                     return True
             else:
-                object = esTweets(search)
+                object = esTweets(search, queryStatus)
                 print "Else"
                 return False
-
 
         def on_error(self, status):
             print status
             print 'Damnn'
 
-
     #print("It's here")
-    l = StdOutListener()
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    stream = Stream(auth, l)
+    #l = StdOutListener()
+    #auth = OAuthHandler(consumer_key, consumer_secret)
+    #auth.set_access_token(access_token, access_token_secret)
+    #stream = Stream(auth, l)
     # This line filter Twitter Streams to capture data by the keywords: 'python', 'javascript', 'ruby'
-    stream.filter(track = topic)
+    #stream.filter(track = topic)
 
-    object = esTweets(search)
+    object = esTweets(search,queryStatus)
     return object
