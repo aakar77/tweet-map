@@ -1,5 +1,6 @@
-# My Lambda Virtual function
-myLambda/*
+#Site package
+myLambda
+SitePackage
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
