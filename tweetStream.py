@@ -75,6 +75,7 @@ def tweet_stream(event, context):
                    
                 response = self.queue.send_message(MessageBody=json.dumps(doc), MessageGroupId='509148512136', MessageDeduplicationId=str(data_dict['id']))
                 
+                print(response)
               except Exception:
                 print("Error - 1 Parsing error OR Queuing error")
                 
@@ -82,8 +83,8 @@ def tweet_stream(event, context):
 	            location = GoogGeoAPI(data_dict['user']['location'])
 	            try:
 	              doc = {'text': data_dict['text'],'handle': data_dict['user']['screen_name'],'id': data_dict['id'],'longitude': location[0], 'latitude': location[1], 'time' : str(datetime.datetime.now().time())}
-	              response = self.queue.send_message(MessageBody=json.dumps(doc), MessageGroupId='509148512136', MessageDeduplicationId=str(data_dict['id']))
-   
+	              response = self.queue.send_message(MessageBody=json.dumps(doc), MessageGroupId='509148512136', MessageDeduplicationId=str(data_dict['id'])) 
+	              print(response)
 	            except Exception:
 	              print("Error - 2 Parsing error OR Queuing error")
 	              
@@ -109,8 +110,8 @@ def tweet_stream(event, context):
   except Exception:
     print("Exception occured Twiter Calling")
 
-'''
+
 if __name__ == '__main__':
   event = {'body' : { 'status' : 'Modi'} } 
   mytest = tweet_stream(event,"b")
-'''
+
