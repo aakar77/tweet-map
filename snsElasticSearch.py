@@ -1,4 +1,4 @@
-from __future__ import print_function
+rom __future__ import print_function
 
 import json
 import time
@@ -10,14 +10,14 @@ from requests_aws4auth import AWS4Auth
 
 def sns_elastic_handler(event, context):
 
-  AWS_ACCESS_KEY = 'X'
-  AWS_SECRET_KEY = 'X'
+  AWS_ACCESS_KEY = ''
+  AWS_SECRET_KEY = ''
   region = 'us-east-2' # For example, us-east-1
   service = 'es'
 
   awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
-  host = 'Z' # For example, my-test-domain.us-    east-1.es.amazonaws.com
+  host = 'search-tweetsentiment-qgnbjonsbxhe6v4btn5chvrpgy.us-east-2.es.amazonaws.com' # For example, my-test-domain.us-    east-1.es.amazonaws.com
 
   #ElasticSearch object
   es = Elasticsearch(
@@ -28,21 +28,16 @@ def sns_elastic_handler(event, context):
     connection_class = RequestsHttpConnection,
     timeout = 10
   )
-  
+
   message = event['Records'][0]['Sns']['Message']
-  
+
   res = es.index(index="tweets_geoloc", doc_type='tweet', body=message)
-  print (res)  
-  
- 
-''' 
+  print (res)
+
+
+'''
 if '__name__' == '__main__':
 
   event = {'aakar' : 'mykar'}
-  sns_elastic_handler(event, 'sakar')   
-'''    
-    
-
-
-
-
+  sns_elastic_handler(event, 'sakar')
+'''
