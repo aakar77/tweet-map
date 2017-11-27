@@ -6,51 +6,146 @@ import datetime
 import time
 import sys
 
+from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+
+# returns the parsed string containing the key
 def stringParsing(myString):
 
     whitelist = set('abcdefghijklmnopqrstuvwxy  :ABCDEFGHIJKLMNOPQRSTUVWXYZ')
     key = ''.join(filter(whitelist.__contains__, myString))
     return(key[9:])
 
+#  fetches the data based on the keyword from the server and sends it back to user
+def fetchElasticSearch(keyword, es):
+
+    searchQuery = {"query": {"match": {"text": keyword}}}
+
+    response = es.search(index="tweet_sentiment", doc_type="tweet",  body=searchQuery, size = 10)
+
+    tweets = list()
+
+    for x in response['hits']['hits']:
+        tweets.append(x['_source'])
+
+    if (len(tweets) > 0):
+        print ('True')
+        status = 'true'
+    else:
+        print ('False')
+        status = 'false'
+
+    responseObject = {'status': status, 'tweet':tweets}
+
+    return responseObject
+
 def request_handler(event, context):
+
+    # Getting boto3 client
+    sns = boto3.client('sns',aws_access_key_id='AKIAJX2P4SHIOHCKQGSQ',aws_secret_access_key='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',region_name='us-east-2')
+    #sns = boto3.client('sns')
 
     print("Received event: " + json.dumps(event, indent=2))
 
-    key = "not present"
+    # Configuration code for AWS and elastic search
+    AWS_ACCESS_KEY = 'X'
+    AWS_SECRET_KEY = 'X'
+    region = 'us-east-2' # For example, us-east-1
+    service = 'es'
+
+    awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
+
+    host = 'search-tweetsentiment-qgnbjonsbxhe6v4btn5chvrpgy.us-east-2.es.amazonaws.com'
+
+    #ElasticSearch object
+    es = Elasticsearch(
+        hosts = [{'host': host, 'port': 443}],
+        http_auth = awsauth,
+        use_ssl = True,
+        verify_certs = True,
+        connection_class = RequestsHttpConnection,
+        timeout = 10
+    )
+
+    #es.indices.delete(index='tweets_sentiment', ignore=[400, 404])
+
+    '''
+    options = {'mappings':
+                {
+                'tweet':
+                    {
+                    'properties': {
+                        'text': {'type': 'string'},
+                        'handle': {'type': 'string'},
+                        'id': {'type': 'string'},
+                        'latitude': {'type': 'string'},
+                        'longitude': {'type': 'string'},
+                        'time' : {'type' : 'date', 'format': 'strict_date_hour_minute_second'}
+                        }
+                    }
+                }
+            }
+    #es.indices.create(index = 'tweet_sentiment', body = options)
+
+    body = {'handle': u'mommaFrittsy', 'text': u"RT @TomthunkitsMind: Anthony Weiner is in prison. Bill Clinton was impeached. Bill O'Reilly, Roger Ailes, Harvey Weinstein, Kevin Spacey ",
+            'longitude': 29.87476165919128, 'time': str(datetime.datetime.now().replace(microsecond=0).isoformat()), 'latitude': -39.13568497525854, 'id': 935199025485307909 }
+
+    res = es.index(index="tweet_sentiment", doc_type='tweet', body=body)
+    '''
+
+    # Fetching the data from the request
 
     if event['body'] is not None:
-        #data = event['body']
+
+        # Parsing the body, event['body'] gives JSON object in the form of "{\n 'status' : 'Trump' }"
         key = stringParsing(event['body'])
-        print(key)
 
-    # For data[6:] "atus' : 'Trump'\n}" is response
+        ## Code for Triggering TweetStream Lambda
 
-    ## Code for fectching the user keyword from the request
-    # Extract from event['body']
+        snsObject = {'topic' : key}
 
-    ## Code for Triggering TweetStream Lambda
+        try:
+            sns.publish(
+                TargetArn ='arn:aws:sns:us-east-2:509148512136:requestNotify',
+                Message=json.dumps({'default': json.dumps(snsObject)}),
+                MessageStructure = 'json'
+            )
+        except Exception as e:
+            print('Error while SNS', e)
 
+        ## Delay 10 seconds for inclusion of new tweets
+        try:
+            time.sleep(10)
+        except Exception as e:
+            print('Error in While sleep', e)
 
-    ## Code for fetching data from ElasticSearch
+        ## Code for fetching data from ElasticSearch
+        responseObj = fetchElasticSearch(key,es)
 
-    # We can compare for latest tweets from the timer associated with the tweet
+        # We can compare for latest tweets from the timer associated with the tweet
 
+    else:
+        # Construct an error packet
+        responseObj = {'status' : 'false'}
 
-    ## Code for sending back the response to User
+    ## Sending the response back to the user
 
     response = {
         "statusCode": 200,
         "headers": {
             "Access-Control-Allow-Origin" : 'https://s3.us-east-2.amazonaws.com'
         },
-        "body": json.dumps(key)
+        "body": json.dumps(responseObj)
     }
 
     return response
 
 '''
 if __name__ == '__main__':
-  event = {'body' : "{ 'status' : 'Modi'}" }
+  event = {'body' : "{'status' : 'Trump'}" }
   #event = "{/\n status : Trump }"
   mytest = request_handler(event,"b")
+
+  print (mytest)
 '''

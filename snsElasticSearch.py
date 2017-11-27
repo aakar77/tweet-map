@@ -1,4 +1,4 @@
-rom __future__ import print_function
+from __future__ import print_function
 
 import json
 import time
@@ -10,8 +10,8 @@ from requests_aws4auth import AWS4Auth
 
 def sns_elastic_handler(event, context):
 
-  AWS_ACCESS_KEY = ''
-  AWS_SECRET_KEY = ''
+  AWS_ACCESS_KEY = 'X'
+  AWS_SECRET_KEY = 'X'
   region = 'us-east-2' # For example, us-east-1
   service = 'es'
 
@@ -31,9 +31,8 @@ def sns_elastic_handler(event, context):
 
   message = event['Records'][0]['Sns']['Message']
 
-  res = es.index(index="tweets_geoloc", doc_type='tweet', body=message)
+  res = es.index(index="tweet_sentiment", doc_type='tweet', body=message)
   print (res)
-
 
 '''
 if '__name__' == '__main__':

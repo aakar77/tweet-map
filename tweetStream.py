@@ -18,15 +18,12 @@ import urllib3
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-access_token = ''
-access_token_secret = ''
-consumer_key = ''
-consumer_secret = ''
+access_token = 'X'
+access_token_secret = 'X'
+consumer_key = 'X'
+consumer_secret = 'X'
 
 print('Loading function')
-
-# Topic List to be populated in the Dropdown menu
-topic = ['Trump', 'Hiliary', 'iOS', 'Android', 'Apple', 'Google', 'Modi', 'Chicago','Yankees']
 
 def tweet_stream(event, context):
 
@@ -36,7 +33,10 @@ def tweet_stream(event, context):
         if(g):
             finList = g[0].latlng
         else:
-            finList = [None, None]
+
+            y, x = uniform(-120,120), uniform(-40,70)
+            # Generating random co-ordinates
+            finList = [x,y]
         return finList
 
     print("Received event: " + json.dumps(event, indent=2))
@@ -67,12 +67,14 @@ def tweet_stream(event, context):
                                 'text': data_dict['text'],
                                 'handle': data_dict['user']['screen_name'],
                                 'id': data_dict['id'],
-                                'longitude': longitude,
                                 'latitude': latitude,
-                                'time' : str(datetime.datetime.now().time())
+                                'longitude': longitude,
+                                'time' : str(datetime.datetime.now().replace(microsecond=0).isoformat()),
                             }
+                            print(doc)
 
                             try:
+
                                 #Adding the data to SQS queue
                                 response = self.queue.send_message(MessageBody=json.dumps(doc), MessageGroupId='509148512136', MessageDeduplicationId=str(data_dict['id']))
 
@@ -99,14 +101,17 @@ def tweet_stream(event, context):
                                 'text': data_dict['text'],
                                 'handle': data_dict['user']['screen_name'],
                                 'id': data_dict['id'],
-                                'longitude': location[0],
-                                'latitude': location[1],
-                                'time' : str(datetime.datetime.now().time())
+                                'latitude': location[0],
+                                'longitude': location[1],
+                                'time' : str(datetime.datetime.now().replace(microsecond=0).isoformat()),
                             }
+                            print(doc)
 
                             try:
                                 #Adding the data to SQS queue
+
                                 response = self.queue.send_message(MessageBody=json.dumps(doc), MessageGroupId='509148512136', MessageDeduplicationId=str(data_dict['id']))
+
                             except Exception as e:
                                 print('Error While adding to SQS OR Tweet Parsing Error -- Geo 2')
 
@@ -137,15 +142,23 @@ def tweet_stream(event, context):
 
     try:
 
+        topic = ['Trump', 'Obama', 'iOS', 'Android', 'Apple', 'Google', 'Modi', 'Chicago','Hacker']
         l = StdOutListener()
         auth = OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
         stream = Stream(auth, l)
+
+        message = event['Records'][0]['Sns']['Message']
+        topic = message['topic']
+
+        topic = topic.split()
+
         stream.filter(track = topic)
     except Exception as e:
-        print("Exception occured Twiter Calling")
+        print("Exception occured Twiter Calling",e)
+
 '''
 if __name__ == '__main__':
-    event = {'body' : { 'status' : 'Modi'} }
+    event = {'body' : { 'status' : 'Apple'} }
     mytest = tweet_stream(event,"b")
 '''
