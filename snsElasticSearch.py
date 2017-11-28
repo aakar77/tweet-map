@@ -10,8 +10,8 @@ from requests_aws4auth import AWS4Auth
 
 def sns_elastic_handler(event, context):
 
-  AWS_ACCESS_KEY = 'X'
-  AWS_SECRET_KEY = 'X'
+  AWS_ACCESS_KEY = 'AKIAJX2P4SHIOHCKQGSQ'
+  AWS_SECRET_KEY = '6jYF37SqVcYQEkD+I4NVyhMXQKsfRq2q+qT3M92i'
   region = 'us-east-2' # For example, us-east-1
   service = 'es'
 
@@ -31,7 +31,7 @@ def sns_elastic_handler(event, context):
 
   message = event['Records'][0]['Sns']['Message']
 
-  res = es.index(index="tweet_sentiment", doc_type='tweet', body=message)
+  res = es.index(index="tweets_sentiment", doc_type='tweet', body=message)
   print (res)
 
 '''

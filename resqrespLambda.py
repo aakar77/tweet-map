@@ -22,7 +22,7 @@ def fetchElasticSearch(keyword, es):
 
     searchQuery = {"query": {"match": {"text": keyword}}}
 
-    response = es.search(index="tweet_sentiment", doc_type="tweet",  body=searchQuery, size = 10)
+    response = es.search(index="tweet_sentiment", doc_type="tweet",  body=searchQuery, size = 100)
 
     tweets = list()
 
@@ -49,9 +49,9 @@ def request_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
 
     # Configuration code for AWS and elastic search
-    AWS_ACCESS_KEY = 'X'
-    AWS_SECRET_KEY = 'X'
-    region = 'us-east-2' # For example, us-east-1
+    AWS_ACCESS_KEY = ''
+    AWS_SECRET_KEY = ''
+    region = '' # For example, us-east-1
     service = 'es'
 
     awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
@@ -68,43 +68,19 @@ def request_handler(event, context):
         timeout = 10
     )
 
-    #es.indices.delete(index='tweets_sentiment', ignore=[400, 404])
-
-    '''
-    options = {'mappings':
-                {
-                'tweet':
-                    {
-                    'properties': {
-                        'text': {'type': 'string'},
-                        'handle': {'type': 'string'},
-                        'id': {'type': 'string'},
-                        'latitude': {'type': 'string'},
-                        'longitude': {'type': 'string'},
-                        'time' : {'type' : 'date', 'format': 'strict_date_hour_minute_second'}
-                        }
-                    }
-                }
-            }
-    #es.indices.create(index = 'tweet_sentiment', body = options)
-
-    body = {'handle': u'mommaFrittsy', 'text': u"RT @TomthunkitsMind: Anthony Weiner is in prison. Bill Clinton was impeached. Bill O'Reilly, Roger Ailes, Harvey Weinstein, Kevin Spacey ",
-            'longitude': 29.87476165919128, 'time': str(datetime.datetime.now().replace(microsecond=0).isoformat()), 'latitude': -39.13568497525854, 'id': 935199025485307909 }
-
-    res = es.index(index="tweet_sentiment", doc_type='tweet', body=body)
-    '''
 
     # Fetching the data from the request
 
-    if event['body'] is not None:
+    data = json.loads(event)
+    if data['body'] is not None:
 
         # Parsing the body, event['body'] gives JSON object in the form of "{\n 'status' : 'Trump' }"
-        key = stringParsing(event['body'])
+        mydata = json.loads(data['body'])
 
-        ## Code for Triggering TweetStream Lambda
+        key = mydata['search']
 
+        # Code for Triggering TweetStream Lambda
         snsObject = {'topic' : key}
-
         try:
             sns.publish(
                 TargetArn ='arn:aws:sns:us-east-2:509148512136:requestNotify',
@@ -122,9 +98,6 @@ def request_handler(event, context):
 
         ## Code for fetching data from ElasticSearch
         responseObj = fetchElasticSearch(key,es)
-
-        # We can compare for latest tweets from the timer associated with the tweet
-
     else:
         # Construct an error packet
         responseObj = {'status' : 'false'}
@@ -138,14 +111,13 @@ def request_handler(event, context):
         },
         "body": json.dumps(responseObj)
     }
-
     return response
 
 '''
 if __name__ == '__main__':
-  event = {'body' : "{'status' : 'Trump'}" }
-  #event = "{/\n status : Trump }"
-  mytest = request_handler(event,"b")
+  event = "{"body" : {"search" : "Trump"} }
+  #event = "{search : Trump }"
+  mytest = request_handler(json.dumps(event),"b")
 
   print (mytest)
 '''
