@@ -104,6 +104,7 @@
       $('#dropdown-menu').on('change', function() {
           deleteMarkers();
           postData();
+
         //document.forms['myform'].submit();
       });
     });
@@ -117,6 +118,7 @@
 	    if(search != null && search != undefined){
 
         var data = { 'search': search }
+        var hits_counter = 0;
 
           $.ajax({
             type : 'POST',
@@ -131,7 +133,63 @@
               console.log(data);
 
               if(data.status == 'true'){
-			          plotData(data.tweet);
+
+                function myElasticRequest(){
+
+                  $('#status').text('Waiting for Live Tweets');
+
+                  var search = $("#dropdown-menu").val();
+
+            	    if(search != null && search != undefined){
+
+                    e_url = 'https://search-tweetsentiment-qgnbjonsbxhe6v4btn5chvrpgy.us-east-2.es.amazonaws.com/tweet_sentiment/_search?q='+search;
+
+                    //This will be the request to be sent to ElasticSearch
+                    $.ajax({
+                      type : 'GET',
+                      crossDomain: true,
+                      contentType: 'application/json',
+                      url: e_url,
+                      success: function (response) {
+
+                        // Updating hits counter and hits occured
+                        var hits = response['hits']['total']
+                        var new_hits = hits - hits_counter;
+                        hits_counter = hits;
+
+                        if(hits != 0){
+                          $('#status').text('New Tweets: '+ new_hits);
+
+                          var elastic_data = response['hits']['hits'];
+                          //console.log(elastic_data);
+
+                          var tweet_list = [];
+
+                          for (i = 0 ; i < hits; i++) {
+                            //console.log(elastic_data[0]);
+                            data = elastic_data[i];
+
+                            tweet_list.push(data['_source']);
+                            //console.log("The tweet list: "+ tweet_list);
+                          }
+                          deleteMarkers();
+                          //console.log(" "+data);
+                          //console.log(response);
+                          plotData(tweet_list);
+                        }
+                      },
+                      error: function() {
+                        console.log("Elasticsearch Failure");
+                      },
+                      complete: function() {
+                        // Schedule the next request when the current one's complete
+                        setTimeout(myElasticRequest, 5000);
+                      }
+                    });
+                  }
+                }
+                // Requesting above function
+                myElasticRequest();
 			        }
 		          else{
 					      $('#status').text('Sorry No Live Tweets available');
@@ -139,10 +197,14 @@
 	          },
             error: function() {
               console.log("failure");
-	          }
+	          },
+            complete: function() {
+              // Schedule the next request when the current one's complete
+              setTimeout(postData, 50000);
+            }
 	        });
-	      }
-	  }
+        }
+      }
 
     // Function for initialization of Google MAP
     function myMap() {
@@ -201,7 +263,6 @@
         content : tweet.text
       });
 
-      /*
       marker.addListener('mouseover', function(){
         infowindow.open(map, marker)
       })
@@ -209,7 +270,6 @@
       marker.addListener('mouseout', function(){
         infowindow.close()
       })
-      */
     }
 
     function deleteMarkers(){

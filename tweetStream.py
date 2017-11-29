@@ -18,10 +18,10 @@ import urllib3
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-access_token = '2394334112-R1vHGRhhrWvHluIOXDr4HYCIVkmW8LfJjzm1GVM'
-access_token_secret = 'bBLF4UE3Y5JN5a0NZHTCcSZmFHPHNUeWiiOrpoJd0gKiU'
-consumer_key = '587HSCUOtGCTRKgWTK3NVehs7'
-consumer_secret = 'l0vTVXfbAbuJmMYqTJmI9RMGqGdvdQO7yep6xjPcQX5L3AjBri'
+access_token = ''
+access_token_secret = ''
+consumer_key = ''
+consumer_secret = ''
 
 print('Loading function')
 

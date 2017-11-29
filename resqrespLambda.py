@@ -70,7 +70,6 @@ def request_handler(event, context):
         connection_class = RequestsHttpConnection,
         timeout = 10
     )
-    #es.indices.delete(index='tweets_sentiment', ignore=[400, 404])
 
     # Fetching the data from the request
 
@@ -80,6 +79,8 @@ def request_handler(event, context):
         mydata = json.loads(event['body'])
         key = mydata['search']
         #key = mydata['search']
+
+        es.indices.delete(index='tweet_sentiment', ignore=[400, 404])
 
         # Code for Triggering TweetStream Lambda
         snsObject = {'topic' : key}
@@ -92,14 +93,19 @@ def request_handler(event, context):
         except Exception as e:
             print('Error while SNS', e)
 
-        ## Delay 10 seconds for inclusion of new tweets
+        '''
+        # Delay 10 seconds for inclusion of new tweets
         try:
             time.sleep(8)
         except Exception as e:
             print('Error in While sleep', e)
+        '''
+
 
         ## Code for fetching data from ElasticSearch
-        responseObj = fetchElasticSearch(key,es)
+        #responseObj = fetchElasticSearch(key,e)
+        responseObj = {'status' : 'true'}
+
     else:
         # Construct an error packet
         responseObj = {'status' : 'false'}
@@ -118,7 +124,8 @@ def request_handler(event, context):
 
 '''
 if __name__ == '__main__':
-  event = {"body" : {"search" : "Trump"} }
+  data = json.dumps( {"search" : "Trump"})
+  event = {"body" : data}
   #event = "{search : Trump }"
   mytest = request_handler(event,"b")
 
