@@ -18,10 +18,10 @@ import urllib3
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-access_token = ''
-access_token_secret = ''
-consumer_key = ''
-consumer_secret = ''
+access_token = '2394334112-R1vHGRhhrWvHluIOXDr4HYCIVkmW8LfJjzm1GVM'
+access_token_secret = 'bBLF4UE3Y5JN5a0NZHTCcSZmFHPHNUeWiiOrpoJd0gKiU'
+consumer_key = '587HSCUOtGCTRKgWTK3NVehs7'
+consumer_secret = 'l0vTVXfbAbuJmMYqTJmI9RMGqGdvdQO7yep6xjPcQX5L3AjBri'
 
 print('Loading function')
 
@@ -76,7 +76,7 @@ def tweet_stream(event, context):
             self.limit = time_limit
             self.sqs = boto3.resource('sqs')
             self.queue = self.sqs.get_queue_by_name(QueueName='tweetqueue.fifo')
-            self.sns = boto3.client('sns',aws_access_key_id='AKIAJX2P4SHIOHCKQGSQ',aws_secret_access_key='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',region_name='us-east-2')
+            self.sns = boto3.client('sns',aws_access_key_id='',aws_secret_access_key='',region_name='us-east-2')
 
         def on_data(self, data):
             data_dict = json.loads(data)
@@ -176,6 +176,8 @@ def tweet_stream(event, context):
         stream.filter(track = topics)
     except Exception as e:
         print("Exception occured Twiter Calling",e)
+'''
 if __name__ == '__main__':
-    event = json.dumps({'body' : { 'search' : 'Apple'} })
+    event = json.dumps({'body' : { 'search' : 'Apple'} }
     mytest = tweet_stream(event,"b")
+'''

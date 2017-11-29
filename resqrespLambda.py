@@ -22,7 +22,10 @@ def fetchElasticSearch(keyword, es):
 
     searchQuery = {"query": {"match": {"text": keyword}}}
 
-    response = es.search(index="tweet_sentiment", doc_type="tweet",  body=searchQuery, size = 100)
+    try:
+        response = es.search(index="tweet_sentiment", doc_type="tweet",  body=searchQuery, size = 100)
+    except Exception as e:
+        print('Error in fetching tweets',e)
 
     tweets = list()
 
@@ -32,26 +35,26 @@ def fetchElasticSearch(keyword, es):
     if (len(tweets) > 0):
         print ('True')
         status = 'true'
+        responseObject = {'status': status, 'tweet':tweets}
     else:
         print ('False')
         status = 'false'
-
-    responseObject = {'status': status, 'tweet':tweets}
+        responseObject = {'status': status}
 
     return responseObject
 
 def request_handler(event, context):
 
     # Getting boto3 client
-    sns = boto3.client('sns',aws_access_key_id='AKIAJX2P4SHIOHCKQGSQ',aws_secret_access_key='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',region_name='us-east-2')
+    sns = boto3.client('sns',aws_access_key_id='',aws_secret_access_key='',region_name='us-east-2')
     #sns = boto3.client('sns')
 
-    print("Received event: " + json.dumps(event, indent=2))
+    #print("Received event: " + json.dumps(event, indent=2))
 
     # Configuration code for AWS and elastic search
     AWS_ACCESS_KEY = ''
     AWS_SECRET_KEY = ''
-    region = '' # For example, us-east-1
+    region = 'us-east-2' # For example, us-east-1
     service = 'es'
 
     awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
@@ -67,17 +70,16 @@ def request_handler(event, context):
         connection_class = RequestsHttpConnection,
         timeout = 10
     )
-
+    #es.indices.delete(index='tweets_sentiment', ignore=[400, 404])
 
     # Fetching the data from the request
 
-    data = json.loads(event)
-    if data['body'] is not None:
+    if event['body'] is not None:
 
         # Parsing the body, event['body'] gives JSON object in the form of "{\n 'status' : 'Trump' }"
-        mydata = json.loads(data['body'])
-
+        mydata = json.loads(event['body'])
         key = mydata['search']
+        #key = mydata['search']
 
         # Code for Triggering TweetStream Lambda
         snsObject = {'topic' : key}
@@ -92,7 +94,7 @@ def request_handler(event, context):
 
         ## Delay 10 seconds for inclusion of new tweets
         try:
-            time.sleep(10)
+            time.sleep(8)
         except Exception as e:
             print('Error in While sleep', e)
 
@@ -105,19 +107,20 @@ def request_handler(event, context):
     ## Sending the response back to the user
 
     response = {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Origin" : 'https://s3.us-east-2.amazonaws.com'
+        'statusCode' : 200,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
         },
-        "body": json.dumps(responseObj)
+        'body': json.dumps(responseObj)
     }
     return response
 
 '''
 if __name__ == '__main__':
-  event = "{"body" : {"search" : "Trump"} }
+  event = {"body" : {"search" : "Trump"} }
   #event = "{search : Trump }"
-  mytest = request_handler(json.dumps(event),"b")
+  mytest = request_handler(event,"b")
 
   print (mytest)
 '''

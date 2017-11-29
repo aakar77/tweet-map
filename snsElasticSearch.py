@@ -10,8 +10,8 @@ from requests_aws4auth import AWS4Auth
 
 def sns_elastic_handler(event, context):
 
-  AWS_ACCESS_KEY = 'AKIAJX2P4SHIOHCKQGSQ'
-  AWS_SECRET_KEY = '6jYF37SqVcYQEkD+I4NVyhMXQKsfRq2q+qT3M92i'
+  AWS_ACCESS_KEY = ''
+  AWS_SECRET_KEY = ''
   region = 'us-east-2' # For example, us-east-1
   service = 'es'
 

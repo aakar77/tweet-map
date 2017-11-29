@@ -13,8 +13,8 @@ from requests_aws4auth import AWS4Auth
 # Configuration code for AWS and elastic search
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
-region = '' # For example, us-east-1
-service = ''
+region = 'us-east-2' # For example, us-east-1
+service = 'es'
 
 awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
 
@@ -31,9 +31,16 @@ es = Elasticsearch(
 )
 
 
-es.indices.delete(index='tweets_sentiment', ignore=[400, 404])
+es.indices.delete(index='tweet_sentiment', ignore=[400, 404])
+
 
 '''
+https://search-tits-7bmrnjvevlel3kx2ihkc73ruum.us-east-1.es.amazonaws.com/morata/_search?q=positive
+
+https://search-tits-7bmrnjvevlel3kx2ihkc73ruum.us-east-1.es.amazonaws.com/tweet_sentiment/_?q=positive
+
+https://search-tweetsentiment-qgnbjonsbxhe6v4btn5chvrpgy.us-east-2.es.amazonaws.com/tweet_sentiment/_search?q=Trump
+
 Debugging
 options = {'mappings':
             {

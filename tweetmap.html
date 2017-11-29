@@ -6,70 +6,72 @@
 
 <body>
 
-	<div class="container">
+  <div class="container">
 
-	<!-- Fixed navbar -->
+    <!-- Fixed navbar -->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
 
-        <p class="navbar-brand" style=""> Tweet Map</p>
+      <p class="navbar-brand" style=""> Tweet Map</p>
 
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
     </nav>
 
-		<h1> <br /><br /> </h1>
+    <h1> <br /><br /> </h1>
 
-		<div class="row">
+    <!-- Row for the select form -->
+    <div class="row">
       <div class="col-md-3">
         <div class="form-group">
 
             <form method="post" id="myform" name="myform">
 
-                <select class="form-control" id="dropdown-menu" name="dropdown-menu">
-                    <option value="">Select the Topic</option>
-                    <option value="Trump"> Trump </option>
-                    <option value="Modi"> Modi </option>
-                    <option value="Google"> Google </option>
-                    <option value="Apple"> Apple </option>
-                    <option value="Android"> Andriod</option>
-                    <option value="iOS"> iOS </option>
-                    <option value="Hillary"> Hillary </option>
-                    <option value="Hacker">Hacker</option>
-                </select>
+              <select class="form-control" id="dropdown-menu" name="dropdown-menu">
+                <option value="">Select the Topic</option>
+                <option value="Trump"> Trump </option>
+                <option value="Modi"> Modi</option>
+                <option value="Google">Google</option>
+                <option value="Apple">Apple</option>
+                <option value="Android">Andriod</option>
+                <option value="iOS">iOS</option>
+                <option value="Hillary">Hillary</option>
+                <option value="Hacker">Hacker</option>
+              </select>
             </form>
-
-          </div>
         </div>
-        <div class="col-md-6 content">
-          <div id="status"></div>
-          </div>
+      </div>
+
+      <div class="col-md-6 content">
+        <div id="status"></div>
+      </div>
     </div>
 
     <!-- start map -->
-		<div id="map" style="width:1050px;height:500px;background:blue;">
+    <div id="map" style="width:1050px;height:500px;background:blue;">
+    </div>
+    <!-- end map -->
 
-		</div>
-		<!-- end map -->
+    <!-- start modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+      <div class="modal-dialog">
 
-     	<!-- start modal -->
-     	<div class="modal fade" id="myModal" role="dialog">
-            <div class="modal-dialog">
-              <!-- Modal content-->
-              <div class="modal-content">
-                <div class="modal-header" style = "background-color: #2a4d6b;">
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                  <p id="modal-message"> Hii</p>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-              </div>
-            </div>
-		</div>
-		<!-- end modal -->
-	</div>
-	<!-- end container -->
+        <!-- Modal content-->
+        <div class="modal-content">
+
+          <div class="modal-header" style = "background-color: #2a4d6b;">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p id="modal-message"> Hii</p>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end modal -->
+  </div>
+  <!-- end container -->
 
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 
@@ -80,9 +82,6 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-  <!-- Custom JS File - Application Logic
-  <script src="{% static 'js/applogic.js' %}"></script> -->
 
   <script type="text/JavaScript">
 
@@ -99,7 +98,7 @@
 
     // This will be triggered on change event of dropdown-menu
     // Form will be submited
-    //var requestInterval = setInterval(postData, 10000);
+    // var requestInterval = setInterval(postData, 10000);
 
     $(document).ready(function() {
       $('#dropdown-menu').on('change', function() {
@@ -109,36 +108,36 @@
       });
     });
 
-	  function postData(){
+    function postData(){
 
-        $('#status').text('Waiting for Live Tweets');
+      $('#status').text('Waiting for Live Tweets');
 
-	      var search = $("#dropdown-menu").val();
+      var search = $("#dropdown-menu").val();
 
-	      if(search != null && search != undefined){
+	    if(search != null && search != undefined){
 
-	        $.ajax({
-	          url: 'https://44l1kb69p1.execute-api.us-east-2.amazonaws.com/prod/helloworld',
-	          type: 'POST',
-	          crossDomain: true,
-    				dataType: 'json',
-	          data: {
-	            'search': search,
-	          },
-	          dataType: 'json',
+        var data = { 'search': search }
+
+          $.ajax({
+            type : 'POST',
+            dataType: 'json',
+            crossDomain: true,
+            url: 'https://44l1kb69p1.execute-api.us-east-2.amazonaws.com/prod/helloworld',
+            data: JSON.stringify(data),
 	          success: function (data) {
 
               $('#status').text('');
 	            console.log("succes");
-              console.log(data)
+              console.log(data);
+
               if(data.status == 'true'){
-			          plotData(data.tweet)
+			          plotData(data.tweet);
 			        }
 		          else{
 					      $('#status').text('Sorry No Live Tweets available');
 		          }
 	          },
-	          error: function() {
+            error: function() {
               console.log("failure");
 	          }
 	        });
@@ -191,8 +190,8 @@
     function plotMarker(tweet, map){
 
       // Setting the marker object with the map, latitude and longitude data
-    	var marker = new google.maps.Marker({
-    		position: {lat: parseFloat(tweet.latitude), lng: parseFloat(tweet.longitude)},
+      var marker = new google.maps.Marker({
+        position: {lat: parseFloat(tweet.latitude), lng: parseFloat(tweet.longitude)},
     		map: map,
         icon: image
     	});
@@ -200,8 +199,9 @@
 
       var infowindow = new google.maps.InfoWindow({
         content : tweet.text
-      })
+      });
 
+      /*
       marker.addListener('mouseover', function(){
         infowindow.open(map, marker)
       })
@@ -209,10 +209,11 @@
       marker.addListener('mouseout', function(){
         infowindow.close()
       })
-
+      */
     }
 
     function deleteMarkers(){
+      // Refreshing the entire map for deleteMarkers
       myMap();
     }
 
@@ -221,7 +222,7 @@
       // Storing the tweetData.tweet
       var tweetsArray = tweets;
 
-      console.log(tweetsArray)
+      console.log(tweetsArray);
 
         // If there are tweets for the given topic Iterate
         if(tweetsArray.length > 0){
@@ -229,11 +230,10 @@
           // Creating marker and InfoWindow for the Google Map Objects
           var marker = null, i;
           var infowindow = new google.maps.InfoWindow();
-		      console.log("Tweets array is there sa.")
+		      console.log("Tweets array is there sa.");
 
           // Iterating over the tweetsArray
           for(i = 0; i<tweetsArray.length; i++){
-
             // Getting the Tweet data
             var tweet = tweetsArray[i];
 
@@ -242,21 +242,16 @@
               if(tweet.latitude){
 
                 if(tweet.sentiment_label == "positive"){
-
                   // Setting the image URL to measle_blue;
                   image= "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
                 }
                 else if(tweet.sentiment_label == "negative"){
-
                   image = "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0";
-
                 }
                 else if(tweet.sentiment_label == "neutral"){
-
                   // Setting the image URL to measle_blue;
                   image= "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png";
                 }
-
               }
               else if(tweet.latitude == 'None' || tweet.longitude == 'None'){
 
@@ -271,7 +266,6 @@
         console.log(tweetsArray.length);
       }
       else{
-
         // No Live Tweets for this topic
         $('#status').text('Sorry No Live Tweets available');
       }

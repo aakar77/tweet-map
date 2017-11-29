@@ -22,13 +22,13 @@ def sentiment_analysis(event, context):
     natural_language_understanding = NaturalLanguageUnderstandingV1(
     username = "",
     password = "",
-    version="")
+    version="2017-02-27")
 
     # Configuration for AWS credentials
     AWS_ACCESS_KEY = ''
     AWS_SECRET_KEY = ''
-    region = '' # For example, us-east-1
-    service = ''
+    region = 'us-east-2' # For example, us-east-1
+    service = 'es'
 
     try:
         awsauth = AWS4Auth(AWS_ACCESS_KEY, AWS_SECRET_KEY, region, service)
