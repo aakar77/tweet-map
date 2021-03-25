@@ -16,7 +16,7 @@ jmespath==0.9.3
 oauthlib==2.0.6
 pyasn1==0.3.7
 python-dateutil==2.6.1
-PyYAML==3.12
+PyYAML==5.4
 ratelim==0.1.6
 requests==2.18.4
 requests-aws4auth==0.9
@@ -52,7 +52,7 @@ pycparser==2.18
 pyOpenSSL==17.4.0
 pysolr==3.6.0
 python-dateutil==2.6.1
-PyYAML==3.12
+PyYAML==5.4
 ratelim==0.1.6
 requests==2.18.4
 requests-aws4auth==0.9
@@ -89,7 +89,7 @@ pycparser==2.18
 pyOpenSSL==17.4.0
 pysolr==3.6.0
 python-dateutil==2.6.1
-PyYAML==3.12
+PyYAML==5.4
 ratelim==0.1.6
 requests==2.18.4
 requests-aws4auth==0.9
