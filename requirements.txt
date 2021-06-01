@@ -25,7 +25,7 @@ rsa==3.4.2
 s3transfer==0.1.11
 six==1.11.0
 tweepy==3.5.0
-urllib3==1.22
+urllib3==1.26.5
 asn1crypto==0.23.0
 awscli==1.11.189
 boto3==1.4.7
@@ -61,7 +61,7 @@ rsa==3.4.2
 s3transfer==0.1.11
 six==1.11.0
 tweepy==3.5.0
-urllib3==1.22
+urllib3==1.26.5
 watson-developer-cloud==1.0.0
 asn1crypto==0.23.0
 awscli==1.11.189
@@ -98,5 +98,5 @@ rsa==3.4.2
 s3transfer==0.1.11
 six==1.11.0
 tweepy==3.5.0
-urllib3==1.22
+urllib3==1.26.5
 watson-developer-cloud==1.0.0
